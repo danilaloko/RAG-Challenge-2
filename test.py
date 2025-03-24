@@ -180,7 +180,9 @@ def process_json_query(json_query: str) -> Dict[str, Any]:
     except json.JSONDecodeError:
         return {"error": "Некорректный формат JSON"}
     except Exception as e:
-        return {"error": f"Произошла ошибка: {str(e)}"}
+        import traceback
+        error_traceback = traceback.format_exc()
+        return {"error": f"Произошла ошибка: {str(e)}", "traceback": error_traceback}
 
 # Пример использования
 if __name__ == "__main__":
