@@ -474,12 +474,12 @@ if __name__ == "__main__":
     
     # This method converts jsons from the debug/data_01_parsed_reports into much simpler jsons, that is a list of pages in markdown
     # New jsons can be found in debug/data_02_merged_reports
-    # pipeline.merge_reports() 
+    pipeline.merge_reports() 
 
 
     # This method exports the reports into plain markdown format. They used only for review and for full text search config: gemini_thinking_config
     # New files can be found in debug/data_03_reports_markdown
-    # pipeline.export_reports_to_markdown() 
+    pipeline.export_reports_to_markdown() 
     
 
     # This method splits the reports into chunks, that are used for vectorization
