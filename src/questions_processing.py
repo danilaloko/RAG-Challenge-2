@@ -68,11 +68,21 @@ class QuestionsProcessor:
         return "\n\n---\n\n".join(context_parts)
 
     def _extract_references(self, pages_list: list, document_name: str) -> list:
-        """Создает ссылки на страницы документа без использования CSV."""
+        # Загрузка данных о документах
+        if self.subset_path is None:
+            raise ValueError("subset_path необходим для обработки ссылок.")
+        self.documents_df = pd.read_csv(self.subset_path)
+
+        # Найти SHA1 документа из CSV
+        matching_rows = self.documents_df[self.documents_df['document_name'] == document_name]
+        if matching_rows.empty:
+            document_sha1 = ""
+        else:
+            document_sha1 = matching_rows.iloc[0]['sha1']
+
         refs = []
         for page in pages_list:
-            # Создаем ссылки только с номерами страниц, без SHA1
-            refs.append({"document": document_name, "page_index": page})
+            refs.append({"pdf_sha1": document_sha1, "page_index": page})
         return refs
 
     def _validate_page_references(self, claimed_pages: list, retrieval_results: list, min_pages: int = 2, max_pages: int = 8) -> list:
@@ -152,6 +162,10 @@ class QuestionsProcessor:
 
     def _extract_documents_from_subset(self, question_text: str) -> list[str]:
         """Извлекает названия документов из вопроса без сопоставления с CSV."""
+        # Проверка на None
+        if question_text is None:
+            return []
+        
         # Просто ищем документы в кавычках
         found_documents = re.findall(r'"([^"]*)"', question_text)
         
@@ -161,6 +175,10 @@ class QuestionsProcessor:
         return found_documents
 
     def process_question(self, question: str, schema: str):
+        # Проверка на None
+        if question is None:
+            raise ValueError("Вопрос не может быть пустым (None)")
+        
         # Пытаемся извлечь названия документов из вопроса
         extracted_documents = self._extract_documents_from_subset(question)
         
