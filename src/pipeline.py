@@ -484,12 +484,12 @@ if __name__ == "__main__":
 
     # This method splits the reports into chunks, that are used for vectorization
     # New jsons can be found in databases/chunked_reports
-    # pipeline.chunk_reports() 
+    pipeline.chunk_reports() 
     
     
     # This method creates vector databases from the chunked reports
     # New files can be found in databases/vector_dbs
-    # pipeline.create_vector_dbs() 
+    pipeline.create_vector_dbs() 
     
     
     # This method processes the questions and answers
