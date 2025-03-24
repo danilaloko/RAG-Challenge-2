@@ -48,6 +48,17 @@ class VectorDBQuerier:
             # Загрузка текстов
             with open(text_path, 'r', encoding='utf-8') as f:
                 texts = json.load(f)
+            
+            # Вывод информации о структуре JSON-файла
+            print(f"Тип данных в JSON-файле {text_path}: {type(texts)}")
+            if isinstance(texts, list):
+                print(f"Количество элементов в списке: {len(texts)}")
+                if len(texts) > 0:
+                    print(f"Тип первого элемента: {type(texts[0])}")
+            elif isinstance(texts, dict):
+                print(f"Количество ключей в словаре: {len(texts.keys())}")
+                print(f"Примеры ключей: {list(texts.keys())[:5]}")
+            
             self.texts.append(texts)
     
     def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
@@ -101,11 +112,24 @@ class VectorDBQuerier:
                                 print(f"Предупреждение: индекс {idx} выходит за пределы списка текстов (длина: {len(self.texts[i])})")
                                 continue
                         elif isinstance(self.texts[i], dict):
-                            # Если JSON - это словарь, используем индекс как ключ
-                            text = self.texts[i].get(str(idx)) or self.texts[i].get(idx)
+                            # Если JSON - это словарь, пробуем разные варианты ключей
+                            text = None
+                            # Пробуем разные форматы ключей
+                            possible_keys = [idx, str(idx), f"{idx}"]
+                            for key in possible_keys:
+                                if key in self.texts[i]:
+                                    text = self.texts[i][key]
+                                    break
+                            
+                            # Если ключ не найден, используем первые top_k элементов словаря
                             if text is None:
                                 print(f"Предупреждение: ключ {idx} не найден в словаре текстов")
-                                continue
+                                # Используем любой доступный текст из словаря
+                                keys = list(self.texts[i].keys())
+                                if j < len(keys):
+                                    text = self.texts[i][keys[j]]
+                                else:
+                                    continue
                         else:
                             print(f"Неподдерживаемый формат текстов: {type(self.texts[i])}")
                             continue
