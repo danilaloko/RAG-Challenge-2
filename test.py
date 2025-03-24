@@ -6,6 +6,8 @@ import openai
 from typing import List, Dict, Any
 from sentence_transformers import SentenceTransformer
 import dotenv
+import httpx
+from openai import OpenAI
 
 # Настройка API ключа OpenAI
 openai.api_key = dotenv.get("OPENAI_API_KEY")
@@ -103,9 +105,18 @@ def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
 
 Дай подробный и точный ответ, основываясь только на предоставленной информации. Если информации недостаточно, укажи это."""
 
+    # Настройка прокси для запроса
+    proxy = "http://user156811:eb49hn@45.159.182.77:5442"
+    
+    # Создание клиента OpenAI с прокси
+    client = OpenAI(
+        api_key=openai.api_key,
+        http_client=httpx.Client(proxies=proxy)
+    )
+    
     # Запрос к ChatGPT
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # или "gpt-4" для более качественных ответов
+    response = client.chat.completions.create(
+        model="gpt-4o",  # или "gpt-4" для более качественных ответов
         messages=[
             {"role": "system", "content": "Ты - ассистент, который помогает студентам с вопросами по учебным материалам."},
             {"role": "user", "content": prompt}
