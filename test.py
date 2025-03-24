@@ -45,7 +45,7 @@ def pdf_to_text_with_ocr(pdf_path, output_txt_path=None, dpi=300):
 # Пример использования
 if __name__ == "__main__":
     # Укажите путь к вашему PDF файлу
-    input_pdf = "input.pdf"
+    input_pdf = "Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf"
     output_txt = "output.txt"
     
     # Проверяем существование файла
