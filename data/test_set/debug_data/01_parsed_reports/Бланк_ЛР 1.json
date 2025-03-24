@@ -1,0 +1,1188 @@
+{
+  "metainfo": {
+    "sha1_name": "Бланк_ЛР 1",
+    "pages_amount": 2,
+    "text_blocks_amount": 49,
+    "tables_amount": 1,
+    "pictures_amount": 0,
+    "equations_amount": 0,
+    "footnotes_amount": 0
+  },
+  "content": [
+    {
+      "page": 1,
+      "content": [
+        {
+          "text": "Кафедра 207 МАИ",
+          "type": "text",
+          "text_id": 0
+        },
+        {
+          "text": "1.",
+          "type": "list_item",
+          "text_id": 1,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 0,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "Набор концевых мер длины__ класса __ разряда.",
+          "type": "list_item",
+          "text_id": 2,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 0,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "2. Калибр-скоба.",
+          "type": "list_item",
+          "text_id": 3,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 0,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "I. ПОРЯДОК ВЫПОЛНЕНИЯ РАБОТЫ",
+          "type": "section_header",
+          "text_id": 4
+        },
+        {
+          "text": "a. подсчитать предельные размеры калибра-скобы.",
+          "type": "list_item",
+          "text_id": 5,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 1,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "b. определить размеры мер, входящих в состав блока. Блок составить по одному из предельных размеров калибра-скобы;",
+          "type": "list_item",
+          "text_id": 6,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 1,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "c. измерить скобу собранным блоком концевых мер.",
+          "type": "list_item",
+          "text_id": 7,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 1,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "d. дать заключение о годности калибра-скобы.",
+          "type": "list_item",
+          "text_id": 8,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 1,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "a. Подсчет предельных размеров калибра-скобы.",
+          "type": "section_header",
+          "text_id": 9
+        },
+        {
+          "text": "Исходя из маркировки калибра и ГОСТ 24853-81 предельные отклонения полей допусков и предельные размеры:",
+          "type": "text",
+          "text_id": 10
+        },
+        {
+          "text": "Расшифровка маркировки скобы",
+          "type": "section_header",
+          "text_id": 11
+        },
+        {
+          "text": "Маркировка",
+          "type": "text",
+          "text_id": 12
+        },
+        {
+          "text": "скобы",
+          "type": "text",
+          "text_id": 13
+        },
+        {
+          "text": "Номинальный",
+          "type": "text",
+          "text_id": 14
+        },
+        {
+          "text": "размер",
+          "type": "text",
+          "text_id": 15
+        },
+        {
+          "text": "Квалитет",
+          "type": "text",
+          "text_id": 16
+        },
+        {
+          "text": "Основное",
+          "type": "text",
+          "text_id": 17
+        },
+        {
+          "text": "отклонение",
+          "type": "text",
+          "text_id": 18
+        },
+        {
+          "text": "Система",
+          "type": "text",
+          "text_id": 19
+        },
+        {
+          "text": "b. Определение размеров мер, входящих в состав блока.",
+          "type": "list_item",
+          "text_id": 20,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 2,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "Предельные размеры скобы и результаты измерений",
+          "type": "section_header",
+          "text_id": 21
+        },
+        {
+          "type": "table",
+          "table_id": 0
+        },
+        {
+          "text": "c. Измерение скобы блоком концевых мер",
+          "type": "section_header",
+          "text_id": 22
+        },
+        {
+          "text": "Размер",
+          "type": "text",
+          "text_id": 23
+        },
+        {
+          "text": "Концевые меры, входящие в блок",
+          "type": "text",
+          "text_id": 24
+        },
+        {
+          "text": "d. Заключение о годности калибра-скобы.",
+          "type": "section_header",
+          "text_id": 25
+        },
+        {
+          "text": "Заключение:_____________________________________________________________",
+          "type": "text",
+          "text_id": 26
+        },
+        {
+          "text": "__________________________________________________________________________",
+          "type": "text",
+          "text_id": 27
+        },
+        {
+          "text": "Лабораторная работа № 1",
+          "type": "section_header",
+          "text_id": 28
+        },
+        {
+          "text": "ПЛОСКОПАРАЛЛЕЛЬНЫЕ МЕРЫ ДЛИНЫ (ПЛИТКИ)",
+          "type": "section_header",
+          "text_id": 29
+        },
+        {
+          "text": "Приборы и материалы",
+          "type": "section_header",
+          "text_id": 30
+        }
+      ],
+      "page_dimensions": {
+        "l": 104.66000366210938,
+        "t": 745.864013671875,
+        "r": 175.6999969482422,
+        "b": 715.1309814453125,
+        "coord_origin": "BOTTOMLEFT"
+      }
+    },
+    {
+      "page": 2,
+      "content": [
+        {
+          "text": "__________________________________________________________________________",
+          "type": "text",
+          "text_id": 31
+        },
+        {
+          "text": "__________________________________________________________________________",
+          "type": "text",
+          "text_id": 32
+        },
+        {
+          "text": "Примечание. Заключение о годности калибра-скобы путём сравнения её действительного размера с предельными, а также обратить внимание на состояние рабочих поверхностей скобы .",
+          "type": "text",
+          "text_id": 33
+        },
+        {
+          "text": "Контрольные вопросы",
+          "type": "section_header",
+          "text_id": 34
+        },
+        {
+          "text": "1. Классификация применяемых измерительных средств по принципу действия.",
+          "type": "list_item",
+          "text_id": 35,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "2. Плоскопараллельные концевые меры.",
+          "type": "list_item",
+          "text_id": 36,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "3. Основные нормативно-технические документы и методические указания на концевые меры.",
+          "type": "list_item",
+          "text_id": 37,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "4. Класс точности концевой меры.",
+          "type": "list_item",
+          "text_id": 38,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "5. Поверка концевых мер.",
+          "type": "list_item",
+          "text_id": 39,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "6. Калибры.",
+          "type": "list_item",
+          "text_id": 40,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "7. Контроль размеров элементов деталей с помощью гладких калибров.",
+          "type": "list_item",
+          "text_id": 41,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "8. Правило составление блока.",
+          "type": "list_item",
+          "text_id": 42,
+          "enumerated": false,
+          "marker": "-",
+          "group_id": 3,
+          "group_name": "list",
+          "group_label": "list"
+        },
+        {
+          "text": "ФИО студента:_______________________",
+          "type": "text",
+          "text_id": 43,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        },
+        {
+          "text": "№ группы:___________________________",
+          "type": "text",
+          "text_id": 44,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        },
+        {
+          "text": "Дата выполнения работы:______________",
+          "type": "text",
+          "text_id": 45,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        },
+        {
+          "text": "Дата сдачи работы:___________________",
+          "type": "text",
+          "text_id": 46,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        },
+        {
+          "text": "ФИО преподавателя:__________________",
+          "type": "text",
+          "text_id": 47,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        },
+        {
+          "text": "Отметка о сдаче защите лабораторной работы_______________________________",
+          "type": "text",
+          "text_id": 48,
+          "group_id": 4,
+          "group_name": "group",
+          "group_label": "form_area"
+        }
+      ],
+      "page_dimensions": {
+        "l": 92.18399810791016,
+        "t": 782.2439575195312,
+        "r": 539.260009765625,
+        "b": 772.1510009765625,
+        "coord_origin": "BOTTOMLEFT"
+      }
+    }
+  ],
+  "tables": [
+    {
+      "table_id": 0,
+      "page": 1,
+      "bbox": [
+        85.04924011230469,
+        278.63433837890625,
+        553.2943115234375,
+        228.947998046875
+      ],
+      "#-rows": 4,
+      "#-cols": 6,
+      "markdown": "|       | Предельные размеры по СТ СЭВ 157-75   | Предельные размеры по СТ СЭВ 157-75   | Предельные размеры по СТ СЭВ 157-75   | Измеренный   | Заключение о   |\n|-------|---------------------------------------|---------------------------------------|---------------------------------------|--------------|----------------|\n| Скоба | наибольший                            | наименьший                            | изношенный                            | размер       | годности       |\n| ПР    |                                       |                                       |                                       |              |                |\n| НЕ    |                                       |                                       |                                       |              |                |",
+      "html": "<table><tbody><tr><td></td><th colspan=\"3\">Предельные размеры по СТ СЭВ 157-75</th><th>Измеренный</th><th>Заключение о</th></tr><tr><th>Скоба</th><th>наибольший</th><th>наименьший</th><th>изношенный</th><th>размер</th><th>годности</th></tr><tr><td>ПР</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>НЕ</td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>",
+      "json": {
+        "self_ref": "#/tables/0",
+        "parent": {
+          "cref": "#/body"
+        },
+        "children": [],
+        "content_layer": "body",
+        "label": "table",
+        "prov": [
+          {
+            "page_no": 1,
+            "bbox": {
+              "l": 85.04924011230469,
+              "t": 278.63433837890625,
+              "r": 553.2943115234375,
+              "b": 228.947998046875,
+              "coord_origin": "BOTTOMLEFT"
+            },
+            "charspan": [
+              0,
+              0
+            ]
+          }
+        ],
+        "captions": [],
+        "references": [],
+        "footnotes": [],
+        "image": null,
+        "data": {
+          "table_cells": [
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 184.10000610351562,
+                "t": 274.75299072265625,
+                "r": 368.20001220703125,
+                "b": 266.375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 3,
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 4,
+              "text": "Предельные размеры по СТ СЭВ 157-75",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 404.95001220703125,
+                "t": 274.51300048828125,
+                "r": 465.4570007324219,
+                "b": 266.135009765625,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 4,
+              "end_col_offset_idx": 5,
+              "text": "Измеренный",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 481.8999938964844,
+                "t": 274.51300048828125,
+                "r": 547.218017578125,
+                "b": 266.135009765625,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 0,
+              "end_row_offset_idx": 1,
+              "start_col_offset_idx": 5,
+              "end_col_offset_idx": 6,
+              "text": "Заключение о",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 106.34000396728516,
+                "t": 268.75299072265625,
+                "r": 136.79000854492188,
+                "b": 260.375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "Скоба",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 160.82000732421875,
+                "t": 262.75299072265625,
+                "r": 220.6999969482422,
+                "b": 254.375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 2,
+              "text": "наибольший",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 240.1699981689453,
+                "t": 262.75299072265625,
+                "r": 301.4599914550781,
+                "b": 254.375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 2,
+              "end_col_offset_idx": 3,
+              "text": "наименьший",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 319.989990234375,
+                "t": 262.75299072265625,
+                "r": 381.0400085449219,
+                "b": 254.375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 3,
+              "end_col_offset_idx": 4,
+              "text": "изношенный",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 418.27001953125,
+                "t": 262.99298095703125,
+                "r": 452.2300109863281,
+                "b": 254.614990234375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 4,
+              "end_col_offset_idx": 5,
+              "text": "размер",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 493.05999755859375,
+                "t": 262.99298095703125,
+                "r": 535.989990234375,
+                "b": 254.614990234375,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 1,
+              "end_row_offset_idx": 2,
+              "start_col_offset_idx": 5,
+              "end_col_offset_idx": 6,
+              "text": "годности",
+              "column_header": true,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 113.9000015258789,
+                "t": 250.9119873046875,
+                "r": 129.22999572753906,
+                "b": 242.3369903564453,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "ПР",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 2,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 2,
+              "end_col_offset_idx": 3,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 3,
+              "end_col_offset_idx": 4,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 4,
+              "end_col_offset_idx": 5,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 2,
+              "end_row_offset_idx": 3,
+              "start_col_offset_idx": 5,
+              "end_col_offset_idx": 6,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": {
+                "l": 113.66000366210938,
+                "t": 238.91200256347656,
+                "r": 129.47000122070312,
+                "b": 230.3369903564453,
+                "coord_origin": "BOTTOMLEFT"
+              },
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 0,
+              "end_col_offset_idx": 1,
+              "text": "НЕ",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 1,
+              "end_col_offset_idx": 2,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 2,
+              "end_col_offset_idx": 3,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 3,
+              "end_col_offset_idx": 4,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 4,
+              "end_col_offset_idx": 5,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            },
+            {
+              "bbox": null,
+              "row_span": 1,
+              "col_span": 1,
+              "start_row_offset_idx": 3,
+              "end_row_offset_idx": 4,
+              "start_col_offset_idx": 5,
+              "end_col_offset_idx": 6,
+              "text": "",
+              "column_header": false,
+              "row_header": false,
+              "row_section": false
+            }
+          ],
+          "num_rows": 4,
+          "num_cols": 6,
+          "grid": [
+            [
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 0,
+                "end_col_offset_idx": 1,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 184.10000610351562,
+                  "t": 274.75299072265625,
+                  "r": 368.20001220703125,
+                  "b": 266.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 3,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 4,
+                "text": "Предельные размеры по СТ СЭВ 157-75",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 184.10000610351562,
+                  "t": 274.75299072265625,
+                  "r": 368.20001220703125,
+                  "b": 266.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 3,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 4,
+                "text": "Предельные размеры по СТ СЭВ 157-75",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 184.10000610351562,
+                  "t": 274.75299072265625,
+                  "r": 368.20001220703125,
+                  "b": 266.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 3,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 4,
+                "text": "Предельные размеры по СТ СЭВ 157-75",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 404.95001220703125,
+                  "t": 274.51300048828125,
+                  "r": 465.4570007324219,
+                  "b": 266.135009765625,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 4,
+                "end_col_offset_idx": 5,
+                "text": "Измеренный",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 481.8999938964844,
+                  "t": 274.51300048828125,
+                  "r": 547.218017578125,
+                  "b": 266.135009765625,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 0,
+                "end_row_offset_idx": 1,
+                "start_col_offset_idx": 5,
+                "end_col_offset_idx": 6,
+                "text": "Заключение о",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              }
+            ],
+            [
+              {
+                "bbox": {
+                  "l": 106.34000396728516,
+                  "t": 268.75299072265625,
+                  "r": 136.79000854492188,
+                  "b": 260.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 0,
+                "end_col_offset_idx": 1,
+                "text": "Скоба",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 160.82000732421875,
+                  "t": 262.75299072265625,
+                  "r": 220.6999969482422,
+                  "b": 254.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 2,
+                "text": "наибольший",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 240.1699981689453,
+                  "t": 262.75299072265625,
+                  "r": 301.4599914550781,
+                  "b": 254.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 2,
+                "end_col_offset_idx": 3,
+                "text": "наименьший",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 319.989990234375,
+                  "t": 262.75299072265625,
+                  "r": 381.0400085449219,
+                  "b": 254.375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 3,
+                "end_col_offset_idx": 4,
+                "text": "изношенный",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 418.27001953125,
+                  "t": 262.99298095703125,
+                  "r": 452.2300109863281,
+                  "b": 254.614990234375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 4,
+                "end_col_offset_idx": 5,
+                "text": "размер",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": {
+                  "l": 493.05999755859375,
+                  "t": 262.99298095703125,
+                  "r": 535.989990234375,
+                  "b": 254.614990234375,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 1,
+                "end_row_offset_idx": 2,
+                "start_col_offset_idx": 5,
+                "end_col_offset_idx": 6,
+                "text": "годности",
+                "column_header": true,
+                "row_header": false,
+                "row_section": false
+              }
+            ],
+            [
+              {
+                "bbox": {
+                  "l": 113.9000015258789,
+                  "t": 250.9119873046875,
+                  "r": 129.22999572753906,
+                  "b": 242.3369903564453,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 0,
+                "end_col_offset_idx": 1,
+                "text": "ПР",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 2,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 2,
+                "end_col_offset_idx": 3,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 3,
+                "end_col_offset_idx": 4,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 4,
+                "end_col_offset_idx": 5,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 2,
+                "end_row_offset_idx": 3,
+                "start_col_offset_idx": 5,
+                "end_col_offset_idx": 6,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              }
+            ],
+            [
+              {
+                "bbox": {
+                  "l": 113.66000366210938,
+                  "t": 238.91200256347656,
+                  "r": 129.47000122070312,
+                  "b": 230.3369903564453,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 0,
+                "end_col_offset_idx": 1,
+                "text": "НЕ",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 1,
+                "end_col_offset_idx": 2,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 2,
+                "end_col_offset_idx": 3,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 3,
+                "end_col_offset_idx": 4,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 4,
+                "end_col_offset_idx": 5,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              },
+              {
+                "bbox": null,
+                "row_span": 1,
+                "col_span": 1,
+                "start_row_offset_idx": 3,
+                "end_row_offset_idx": 4,
+                "start_col_offset_idx": 5,
+                "end_col_offset_idx": 6,
+                "text": "",
+                "column_header": false,
+                "row_header": false,
+                "row_section": false
+              }
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "pictures": []
+}
