@@ -1,57 +1,89 @@
 import fitz  # PyMuPDF
 import pytesseract
+import cv2
+import numpy as np
 from PIL import Image
 import io
 import os
 
-def pdf_to_text_with_ocr(pdf_path, output_txt_path=None, dpi=300):
-    """
-    Извлекает текст из PDF с использованием OCR.
+def preprocess_image(img):
+    """Улучшает качество изображения перед OCR"""
+    # Конвертируем в OpenCV-формат (numpy array)
+    img_cv = np.array(img)
     
-    :param pdf_path: Путь к PDF файлу
-    :param output_txt_path: Путь для сохранения текста (если None, возвращает текст как строку)
-    :param dpi: Разрешение для рендеринга изображений (по умолчанию 300 DPI)
-    :return: Текст или None, если output_txt_path указан
+    # Улучшаем контраст (CLAHE - адаптивное выравнивание гистограммы)
+    lab = cv2.cvtColor(img_cv, cv2.COLOR_RGB2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    l_clahe = clahe.apply(l)
+    lab_clahe = cv2.merge((l_clahe, a, b))
+    img_enhanced = cv2.cvtColor(lab_clahe, cv2.COLOR_LAB2RGB)
+    
+    # Бинаризация (если нужно)
+    gray = cv2.cvtColor(img_enhanced, cv2.COLOR_RGB2GRAY)
+    _, img_bin = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    return Image.fromarray(img_bin)
+
+def pdf_to_high_accuracy_ocr(pdf_path, output_txt_path=None, dpi=400, lang="rus+eng"):
     """
-    # Открываем PDF файл
+    Извлекает текст из PDF с максимальной точностью OCR.
+    
+    :param pdf_path: Путь к PDF
+    :param output_txt_path: Куда сохранить текст (если None — возвращает строку)
+    :param dpi: Разрешение сканирования (рекомендуется 300-600)
+    :param lang: Языки для Tesseract (например, "rus+eng")
+    :return: Текст или None (если сохранено в файл)
+    """
     doc = fitz.open(pdf_path)
-    text = ""
+    full_text = []
     
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
         
-        # Получаем изображение страницы с высоким разрешением
+        # Рендерим страницу как изображение с высоким DPI
         pix = page.get_pixmap(dpi=dpi)
-        img_bytes = pix.tobytes("ppm")  # Конвертируем в PPM формат
+        img_bytes = pix.tobytes("ppm")
+        img_pil = Image.open(io.BytesIO(img_bytes))
         
-        # Открываем изображение с помощью PIL
-        img = Image.open(io.BytesIO(img_bytes))
+        # Улучшаем изображение перед OCR
+        processed_img = preprocess_image(img_pil)
         
-        # Применяем OCR к изображению
-        page_text = pytesseract.image_to_string(img, lang='rus+eng')  # Для русского и английского
+        # Настройки Tesseract для максимальной точности
+        custom_config = r"""
+            --oem 3  # Используем LSTM-движок
+            --psm 6   # Авто-определение структуры текста
+            -c preserve_interword_spaces=1
+            -c tessedit_char_whitelist=.,!?:;-—()«»№@%s
+        """
         
-        text += f"--- Страница {page_num + 1} ---\n{page_text}\n"
+        # Применяем OCR
+        page_text = pytesseract.image_to_string(
+            processed_img,
+            lang=lang,
+            config=custom_config
+        )
+        
+        full_text.append(f"--- Страница {page_num + 1} ---\n{page_text}\n")
     
     doc.close()
+    result_text = "\n".join(full_text)
     
     if output_txt_path:
-        with open(output_txt_path, 'w', encoding='utf-8') as f:
-            f.write(text)
-        print(f"Текст сохранен в: {output_txt_path}")
+        with open(output_txt_path, "w", encoding="utf-8") as f:
+            f.write(result_text)
+        print(f"✅ Текст сохранён в {output_txt_path}")
         return None
     else:
-        return text
+        return result_text
 
 # Пример использования
 if __name__ == "__main__":
-    # Укажите путь к вашему PDF файлу
-    input_pdf = "Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf"
-    output_txt = "output.txt"
+    input_pdf = "document.pdf"
+    output_txt = "output_ocr.txt"
     
-    # Проверяем существование файла
     if not os.path.exists(input_pdf):
-        print(f"Ошибка: файл {input_pdf} не найден!")
+        print(f"❌ Файл {input_pdf} не найден!")
     else:
-        # Извлекаем текст
-        pdf_to_text_with_ocr(input_pdf, output_txt)
-        print("OCR завершен!")
+        pdf_to_high_accuracy_ocr(input_pdf, output_txt)
+        print("✅ OCR завершён с максимальной точностью!")
