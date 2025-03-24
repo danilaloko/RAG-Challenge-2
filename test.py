@@ -63,13 +63,30 @@ class VectorDBQuerier:
         """
         # Получение эмбеддинга запроса
         query_embedding = self.model.encode([query])[0]
-        query_embedding = np.array([query_embedding], dtype=np.float32)
         
         all_results = []
         
         # Поиск по всем базам данных
         for i, index in enumerate(self.faiss_dbs):
-            distances, indices = index.search(query_embedding, top_k)
+            # Проверяем размерность индекса и приводим эмбеддинг к нужной размерности
+            d = index.d  # Получаем размерность индекса
+            
+            # Если размерность эмбеддинга не совпадает с размерностью индекса
+            if len(query_embedding) != d:
+                print(f"Предупреждение: размерность эмбеддинга ({len(query_embedding)}) не совпадает с размерностью индекса ({d})")
+                # Можно либо обрезать вектор, либо дополнить нулями
+                if len(query_embedding) > d:
+                    query_embedding_resized = query_embedding[:d]
+                else:
+                    query_embedding_resized = np.pad(query_embedding, (0, d - len(query_embedding)))
+            else:
+                query_embedding_resized = query_embedding
+            
+            # Преобразуем в нужный формат для FAISS
+            query_embedding_resized = np.array([query_embedding_resized], dtype=np.float32)
+            
+            # Выполняем поиск
+            distances, indices = index.search(query_embedding_resized, top_k)
             
             # Формирование результатов
             for j, idx in enumerate(indices[0]):
