@@ -31,8 +31,13 @@ class VectorDBQuerier:
             if not os.path.exists(db_path):
                 raise FileNotFoundError(f"FAISS база данных не найдена: {db_path}")
             
-            # Предполагаем, что для каждой .faiss БД есть соответствующий .json файл с текстами
-            text_path = db_path.replace('.faiss', '.json')
+            # Получаем имя файла без пути и расширения
+            db_filename = os.path.basename(db_path)
+            db_name = os.path.splitext(db_filename)[0]
+            
+            # Формируем путь к соответствующему JSON-файлу в указанном каталоге
+            text_path = os.path.join("data/test_set/databases/chunked_reports", f"{db_name}.json")
+            
             if not os.path.exists(text_path):
                 raise FileNotFoundError(f"Файл с текстами не найден: {text_path}")
             
