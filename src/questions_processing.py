@@ -487,6 +487,7 @@ class QuestionsProcessor:
         submission_file: Optional[Union[str, Path]] = None,
         output_path: Optional[Union[str, Path]] = None,
         team_email: Optional[str] = None,
+        submission_name: Optional[str] = None,
         print_stats: bool = True
     ) -> List[dict]:
         """Обрабатывает все вопросы из self.questions и сохраняет результаты."""
@@ -505,14 +506,15 @@ class QuestionsProcessor:
         
         # Сохраняем результаты, если указан output_file
         if actual_output_file:
-            # Добавляем email команды в результаты, если он указан
-            if team_email:
-                output_data = {
-                    "team_email": team_email,
-                    "results": results
-                }
-            else:
-                output_data = results
+            # Добавляем email команды и имя отправки в результаты, если они указаны
+            output_data = results
+            if team_email or submission_name:
+                output_data = {}
+                if team_email:
+                    output_data["team_email"] = team_email
+                if submission_name:
+                    output_data["submission_name"] = submission_name
+                output_data["results"] = results
             
             with open(actual_output_file, 'w', encoding='utf-8') as f:
                 json.dump(output_data, f, ensure_ascii=False, indent=2)
@@ -522,14 +524,15 @@ class QuestionsProcessor:
         if submission_file:
             submission_data = self._prepare_submission_data(results)
             
-            # Добавляем email команды в данные для отправки, если он указан
-            if team_email:
-                submission_output = {
-                    "team_email": team_email,
-                    "results": submission_data
-                }
-            else:
-                submission_output = submission_data
+            # Добавляем email команды и имя отправки в данные для отправки, если они указаны
+            submission_output = submission_data
+            if team_email or submission_name:
+                submission_output = {}
+                if team_email:
+                    submission_output["team_email"] = team_email
+                if submission_name:
+                    submission_output["submission_name"] = submission_name
+                submission_output["results"] = submission_data
             
             with open(submission_file, 'w', encoding='utf-8') as f:
                 json.dump(submission_output, f, ensure_ascii=False, indent=2)
