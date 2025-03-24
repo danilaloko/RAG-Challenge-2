@@ -91,13 +91,35 @@ class VectorDBQuerier:
             # Формирование результатов
             for j, idx in enumerate(indices[0]):
                 if idx != -1:  # Проверка на валидный индекс
-                    result = {
-                        "text": self.texts[i][idx],
-                        "distance": float(distances[0][j]),
-                        "db_index": i,
-                        "text_index": idx
-                    }
-                    all_results.append(result)
+                    try:
+                        # Проверяем формат JSON-файла и получаем текст
+                        if isinstance(self.texts[i], list):
+                            # Если JSON - это список, используем индекс напрямую
+                            if 0 <= idx < len(self.texts[i]):
+                                text = self.texts[i][idx]
+                            else:
+                                print(f"Предупреждение: индекс {idx} выходит за пределы списка текстов (длина: {len(self.texts[i])})")
+                                continue
+                        elif isinstance(self.texts[i], dict):
+                            # Если JSON - это словарь, используем индекс как ключ
+                            text = self.texts[i].get(str(idx)) or self.texts[i].get(idx)
+                            if text is None:
+                                print(f"Предупреждение: ключ {idx} не найден в словаре текстов")
+                                continue
+                        else:
+                            print(f"Неподдерживаемый формат текстов: {type(self.texts[i])}")
+                            continue
+                        
+                        result = {
+                            "text": text,
+                            "distance": float(distances[0][j]),
+                            "db_index": i,
+                            "text_index": idx
+                        }
+                        all_results.append(result)
+                    except Exception as e:
+                        print(f"Ошибка при обработке результата: {e}")
+                        continue
         
         # Сортировка результатов по релевантности (меньшее расстояние = более релевантно)
         all_results.sort(key=lambda x: x["distance"])
