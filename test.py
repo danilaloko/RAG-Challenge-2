@@ -72,20 +72,15 @@ class VectorDBQuerier:
         Returns:
             список словарей с найденными фрагментами и их метаданными
         """
-        # Получение эмбеддинга запроса
         query_embedding = self.model.encode([query])[0]
         
         all_results = []
         
-        # Поиск по всем базам данных
         for i, index in enumerate(self.faiss_dbs):
-            # Проверяем размерность индекса и приводим эмбеддинг к нужной размерности
-            d = index.d  # Получаем размерность индекса
+            d = index.d
             
-            # Если размерность эмбеддинга не совпадает с размерностью индекса
             if len(query_embedding) != d:
                 print(f"Предупреждение: размерность эмбеддинга ({len(query_embedding)}) не совпадает с размерностью индекса ({d})")
-                # Можно либо обрезать вектор, либо дополнить нулями
                 if len(query_embedding) > d:
                     query_embedding_resized = query_embedding[:d]
                 else:
@@ -93,61 +88,30 @@ class VectorDBQuerier:
             else:
                 query_embedding_resized = query_embedding
             
-            # Преобразуем в нужный формат для FAISS
             query_embedding_resized = np.array([query_embedding_resized], dtype=np.float32)
             
-            # Выполняем поиск
             distances, indices = index.search(query_embedding_resized, top_k)
             
-            # Формирование результатов
+            # Получаем chunks из JSON
+            chunks = self.texts[i]['content']['chunks']
+            
             for j, idx in enumerate(indices[0]):
-                if idx != -1:  # Проверка на валидный индекс
+                if idx != -1 and idx < len(chunks):
                     try:
-                        # Проверяем формат JSON-файла и получаем текст
-                        if isinstance(self.texts[i], list):
-                            # Если JSON - это список, используем индекс напрямую
-                            if 0 <= idx < len(self.texts[i]):
-                                text = self.texts[i][idx]
-                            else:
-                                print(f"Предупреждение: индекс {idx} выходит за пределы списка текстов (длина: {len(self.texts[i])})")
-                                continue
-                        elif isinstance(self.texts[i], dict):
-                            # Если JSON - это словарь, пробуем разные варианты ключей
-                            text = None
-                            # Пробуем разные форматы ключей
-                            possible_keys = [idx, str(idx), f"{idx}"]
-                            for key in possible_keys:
-                                if key in self.texts[i]:
-                                    text = self.texts[i][key]
-                                    break
-                            
-                            # Если ключ не найден, используем первые top_k элементов словаря
-                            if text is None:
-                                print(f"Предупреждение: ключ {idx} не найден в словаре текстов")
-                                # Используем любой доступный текст из словаря
-                                keys = list(self.texts[i].keys())
-                                if j < len(keys):
-                                    text = self.texts[i][keys[j]]
-                                else:
-                                    continue
-                        else:
-                            print(f"Неподдерживаемый формат текстов: {type(self.texts[i])}")
-                            continue
-                        
+                        chunk = chunks[idx]
                         result = {
-                            "text": text,
+                            "text": chunk["text"],
                             "distance": float(distances[0][j]),
                             "db_index": i,
-                            "text_index": idx
+                            "text_index": idx,
+                            "page": chunk["page"]  # Добавляем номер страницы для контекста
                         }
                         all_results.append(result)
                     except Exception as e:
                         print(f"Ошибка при обработке результата: {e}")
                         continue
         
-        # Сортировка результатов по релевантности (меньшее расстояние = более релевантно)
         all_results.sort(key=lambda x: x["distance"])
-        
         return all_results[:top_k]
 
 def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
@@ -161,10 +125,10 @@ def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
     Returns:
         ответ на вопрос
     """
-    # Формирование контекста для запроса к ChatGPT
-    context_text = "\n\n".join([item["text"] for item in context])
+    # Формируем контекст из текстов, добавляя информацию о странице
+    context_texts = [f"[Страница {item['page']}] {item['text']}" for item in context]
+    context_text = "\n\n".join(context_texts)
     
-    # Формирование промпта
     prompt = f"""На основе следующей информации из методических материалов ответь на вопрос.
     
 Информация из методических материалов:
@@ -174,23 +138,20 @@ def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
 
 Дай подробный и точный ответ, основываясь только на предоставленной информации. Если информации недостаточно, укажи это."""
 
-    # Настройка прокси для запроса
     proxy = "http://user156811:eb49hn@45.159.182.77:5442"
     
-    # Создание клиента OpenAI с прокси
     client = OpenAI(
         api_key=openai.api_key,
         http_client=httpx.Client(proxies=proxy)
     )
     
-    # Запрос к ChatGPT
     response = client.chat.completions.create(
-        model="gpt-4o",  # или "gpt-4" для более качественных ответов
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "Ты - ассистент, который помогает студентам с вопросами по учебным материалам."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3,  # Низкая температура для более точных ответов
+        temperature=0.3,
         max_tokens=1000
     )
     
