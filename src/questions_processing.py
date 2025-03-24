@@ -485,12 +485,16 @@ class QuestionsProcessor:
         self, 
         output_file: Optional[Union[str, Path]] = None,
         submission_file: Optional[Union[str, Path]] = None,
+        output_path: Optional[Union[str, Path]] = None,
         print_stats: bool = True
     ) -> List[dict]:
         """Обрабатывает все вопросы из self.questions и сохраняет результаты."""
         if not self.questions:
             print("Нет вопросов для обработки.")
             return []
+        
+        # Используем output_path вместо output_file, если он указан
+        actual_output_file = output_path if output_path is not None else output_file
         
         # Обрабатываем вопросы
         results = self.process_questions_list(
@@ -499,10 +503,10 @@ class QuestionsProcessor:
         )
         
         # Сохраняем результаты, если указан output_file
-        if output_file:
-            with open(output_file, 'w', encoding='utf-8') as f:
+        if actual_output_file:
+            with open(actual_output_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)
-            print(f"Результаты сохранены в {output_file}")
+            print(f"Результаты сохранены в {actual_output_file}")
         
         # Создаем файл для отправки, если указан submission_file
         if submission_file:
