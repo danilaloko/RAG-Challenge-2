@@ -216,7 +216,7 @@ def process_json_query(json_query: str) -> Dict[str, Any]:
 # Пример использования
 if __name__ == "__main__":
     # Пример JSON-запроса
-    sample_query = '{"question": "Напиши формулу среднего выпрямленного значения напряжения на нагрузке за период"}'
+    sample_query = '{"question": "Среднее выпрямленное напряжение и ток на нагрузке за период"}'
     
     # Обработка запроса
     result = process_json_query(sample_query)
