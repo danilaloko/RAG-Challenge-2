@@ -150,7 +150,7 @@ def process_json_query(json_query: str) -> Dict[str, Any]:
         
         # Пути к векторным БД (замените на свои)
         faiss_db_paths = [
-            "data/test_set/databases/chunked_reports/74332 (1).faiss"
+            "data/test_set/databases/vector_dbs/74332 (1).faiss"
             # Добавьте другие пути при необходимости
         ]
         
