@@ -481,15 +481,58 @@ class QuestionsProcessor:
                 with open(output_file, 'w', encoding='utf-8') as file:
                     json.dump(submission, file, ensure_ascii=False, indent=2)
 
-    def process_all_questions(self, output_path: str = 'questions_with_answers.json', team_email: str = "79250515615@yandex.com", submission_name: str = "Ilia_Ris SO CoT + Parent Document Retrieval", submission_file: bool = False, pipeline_details: str = ""):
-        result = self.process_questions_list(
-            self.questions,
-            submission_file=submission_file,
-            team_email=team_email,
-            submission_name=submission_name,
-            pipeline_details=pipeline_details
+    def process_all_questions(
+        self, 
+        output_file: Optional[Union[str, Path]] = None,
+        submission_file: Optional[Union[str, Path]] = None,
+        print_stats: bool = True
+    ) -> List[dict]:
+        """Обрабатывает все вопросы из self.questions и сохраняет результаты."""
+        if not self.questions:
+            print("Нет вопросов для обработки.")
+            return []
+        
+        # Обрабатываем вопросы
+        results = self.process_questions_list(
+            questions_list=self.questions,
+            print_stats=print_stats
         )
-        return result
+        
+        # Сохраняем результаты, если указан output_file
+        if output_file:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(results, f, ensure_ascii=False, indent=2)
+            print(f"Результаты сохранены в {output_file}")
+        
+        # Создаем файл для отправки, если указан submission_file
+        if submission_file:
+            submission_data = self._prepare_submission_data(results)
+            with open(submission_file, 'w', encoding='utf-8') as f:
+                json.dump(submission_data, f, ensure_ascii=False, indent=2)
+            print(f"Файл для отправки сохранен в {submission_file}")
+        
+        return results
+
+    def _prepare_submission_data(self, results: List[dict]) -> List[dict]:
+        """Подготавливает данные для отправки."""
+        submission_data = []
+        for item in results:
+            submission_item = {
+                "question_id": item.get("question_id", ""),
+                "answer": item.get("answer", "N/A")
+            }
+            
+            # Добавляем дополнительные поля в зависимости от типа ответа
+            if "value" in item:
+                submission_item["value"] = item["value"]
+            if "unit" in item:
+                submission_item["unit"] = item["unit"]
+            if "comparison_result" in item:
+                submission_item["comparison_result"] = item["comparison_result"]
+            
+            submission_data.append(submission_item)
+        
+        return submission_data
 
     def process_comparative_question(self, question: str, documents: List[str], schema: str) -> dict:
         """
