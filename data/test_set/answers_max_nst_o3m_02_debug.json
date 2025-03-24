@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "KeyError: 'document_name'",
+      "answer_details": {
+        "$ref": "#/answer_details/0"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "KeyError: 'document_name'",
+      "answer_details": {
+        "$ref": "#/answer_details/1"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "KeyError: 'document_name'",
+      "answer_details": {
+        "$ref": "#/answer_details/2"
+      }
+    }
+  ],
+  "answer_details": [
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3805, in get_loc\n    return self._engine.get_loc(casted_key)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"index.pyx\", line 167, in pandas._libs.index.IndexEngine.get_loc\n  File \"index.pyx\", line 196, in pandas._libs.index.IndexEngine.get_loc\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item\nKeyError: 'document_name'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 327, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 186, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 171, in _extract_documents_from_subset\n    document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)\n                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/frame.py\", line 4102, in __getitem__\n    indexer = self.columns.get_loc(key)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3812, in get_loc\n    raise KeyError(key) from err\nKeyError: 'document_name'\n",
+      "self": "#/answer_details/0"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3805, in get_loc\n    return self._engine.get_loc(casted_key)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"index.pyx\", line 167, in pandas._libs.index.IndexEngine.get_loc\n  File \"index.pyx\", line 196, in pandas._libs.index.IndexEngine.get_loc\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item\nKeyError: 'document_name'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 327, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 186, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 171, in _extract_documents_from_subset\n    document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)\n                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/frame.py\", line 4102, in __getitem__\n    indexer = self.columns.get_loc(key)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3812, in get_loc\n    raise KeyError(key) from err\nKeyError: 'document_name'\n",
+      "self": "#/answer_details/1"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3805, in get_loc\n    return self._engine.get_loc(casted_key)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"index.pyx\", line 167, in pandas._libs.index.IndexEngine.get_loc\n  File \"index.pyx\", line 196, in pandas._libs.index.IndexEngine.get_loc\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item\n  File \"pandas/_libs/hashtable_class_helper.pxi\", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item\nKeyError: 'document_name'\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 327, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 186, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 171, in _extract_documents_from_subset\n    document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)\n                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/frame.py\", line 4102, in __getitem__\n    indexer = self.columns.get_loc(key)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/env/lib/python3.12/site-packages/pandas/core/indexes/base.py\", line 3812, in get_loc\n    raise KeyError(key) from err\nKeyError: 'document_name'\n",
+      "self": "#/answer_details/2"
+    }
+  ],
+  "statistics": {
+    "total_questions": 3,
+    "error_count": 3,
+    "na_count": 0,
+    "success_count": 0
+  }
+}

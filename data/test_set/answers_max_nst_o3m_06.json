@@ -1,0 +1,25 @@
+{
+  "team_email": "79250515615@yandex.com",
+  "submission_name": "Ilia Ris v.4",
+  "pipeline_details": "Custom pdf parsing + vDB + Router + Parent Document Retrieval + reranking + SO CoT; llm = o3-mini",
+  "results": [
+    {
+      "question_id": "q0",
+      "error": "'dict' object has no attribute 'strip'",
+      "error_type": "AttributeError",
+      "answer": "N/A"
+    },
+    {
+      "question_id": "q1",
+      "error": "'dict' object has no attribute 'strip'",
+      "error_type": "AttributeError",
+      "answer": "N/A"
+    },
+    {
+      "question_id": "q2",
+      "error": "'dict' object has no attribute 'strip'",
+      "error_type": "AttributeError",
+      "answer": "N/A"
+    }
+  ]
+}

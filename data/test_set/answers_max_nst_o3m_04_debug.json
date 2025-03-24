@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "TypeError: expected string or bytes-like object, got 'NoneType'",
+      "answer_details": {
+        "$ref": "#/answer_details/0"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "TypeError: expected string or bytes-like object, got 'NoneType'",
+      "answer_details": {
+        "$ref": "#/answer_details/1"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "TypeError: expected string or bytes-like object, got 'NoneType'",
+      "answer_details": {
+        "$ref": "#/answer_details/2"
+      }
+    }
+  ],
+  "answer_details": [
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 306, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 165, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 156, in _extract_documents_from_subset\n    found_documents = re.findall(r'\"([^\"]*)\"', question_text)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/re/__init__.py\", line 217, in findall\n    return _compile(pattern, flags).findall(string)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: expected string or bytes-like object, got 'NoneType'\n",
+      "self": "#/answer_details/0"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 306, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 165, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 156, in _extract_documents_from_subset\n    found_documents = re.findall(r'\"([^\"]*)\"', question_text)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/re/__init__.py\", line 217, in findall\n    return _compile(pattern, flags).findall(string)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: expected string or bytes-like object, got 'NoneType'\n",
+      "self": "#/answer_details/1"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 306, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 165, in process_question\n    extracted_documents = self._extract_documents_from_subset(question)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 156, in _extract_documents_from_subset\n    found_documents = re.findall(r'\"([^\"]*)\"', question_text)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/re/__init__.py\", line 217, in findall\n    return _compile(pattern, flags).findall(string)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: expected string or bytes-like object, got 'NoneType'\n",
+      "self": "#/answer_details/2"
+    }
+  ],
+  "statistics": {
+    "total_questions": 3,
+    "error_count": 3,
+    "na_count": 0,
+    "success_count": 0
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "answers": [
+    {
+      "question_text": null,
+      "kind": null,
+      "value": "N/A",
+      "references": []
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": "N/A",
+      "references": []
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": "N/A",
+      "references": []
+    }
+  ],
+  "team_email": "79250515615@yandex.com",
+  "submission_name": "Ilia Ris v.4",
+  "details": "Custom pdf parsing + vDB + Router + Parent Document Retrieval + reranking + SO CoT; llm = o3-mini"
+}

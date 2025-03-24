@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "ValueError: Вопрос не может быть пустым (None)",
+      "answer_details": {
+        "$ref": "#/answer_details/0"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "ValueError: Вопрос не может быть пустым (None)",
+      "answer_details": {
+        "$ref": "#/answer_details/1"
+      }
+    },
+    {
+      "question_text": null,
+      "kind": null,
+      "value": null,
+      "references": [],
+      "error": "ValueError: Вопрос не может быть пустым (None)",
+      "answer_details": {
+        "$ref": "#/answer_details/2"
+      }
+    }
+  ],
+  "answer_details": [
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 324, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 180, in process_question\n    raise ValueError(\"Вопрос не может быть пустым (None)\")\nValueError: Вопрос не может быть пустым (None)\n",
+      "self": "#/answer_details/0"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 324, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 180, in process_question\n    raise ValueError(\"Вопрос не может быть пустым (None)\")\nValueError: Вопрос не может быть пустым (None)\n",
+      "self": "#/answer_details/1"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 324, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 180, in process_question\n    raise ValueError(\"Вопрос не может быть пустым (None)\")\nValueError: Вопрос не может быть пустым (None)\n",
+      "self": "#/answer_details/2"
+    }
+  ],
+  "statistics": {
+    "total_questions": 3,
+    "error_count": 3,
+    "na_count": 0,
+    "success_count": 0
+  }
+}

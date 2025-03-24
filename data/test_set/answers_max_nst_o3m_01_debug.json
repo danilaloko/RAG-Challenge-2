@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question_text": "Напиши формулу коэффициента усиления по мощности в схеме каскада с общим эмиттером",
+      "kind": "formula",
+      "value": null,
+      "references": [],
+      "error": "ValueError: No company name found in the question.",
+      "answer_details": {
+        "$ref": "#/answer_details/0"
+      }
+    },
+    {
+      "question_text": "На какой странице рисунок 3.5 Входная характеристика транзистора?",
+      "kind": "number",
+      "value": null,
+      "references": [],
+      "error": "ValueError: No company name found in the question.",
+      "answer_details": {
+        "$ref": "#/answer_details/1"
+      }
+    },
+    {
+      "question_text": "Какой наименьший коэффициент усиления по току для транзистора МП?",
+      "kind": "number",
+      "value": null,
+      "references": [],
+      "error": "ValueError: No company name found in the question.",
+      "answer_details": {
+        "$ref": "#/answer_details/2"
+      }
+    }
+  ],
+  "answer_details": [
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 278, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 191, in process_question\n    raise ValueError(\"No company name found in the question.\")\nValueError: No company name found in the question.\n",
+      "self": "#/answer_details/0"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 278, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 191, in process_question\n    raise ValueError(\"No company name found in the question.\")\nValueError: No company name found in the question.\n",
+      "self": "#/answer_details/1"
+    },
+    {
+      "error_traceback": "Traceback (most recent call last):\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 278, in _process_single_question\n    answer_dict = self.process_question(question_text, schema)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/RAG-Challenge-2/src/questions_processing.py\", line 191, in process_question\n    raise ValueError(\"No company name found in the question.\")\nValueError: No company name found in the question.\n",
+      "self": "#/answer_details/2"
+    }
+  ],
+  "statistics": {
+    "total_questions": 3,
+    "error_count": 3,
+    "na_count": 0,
+    "success_count": 0
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "answers": [
+    {
+      "question_text": "Напиши формулу коэффициента усиления по мощности в схеме каскада с общим эмиттером",
+      "kind": "formula",
+      "value": "N/A",
+      "references": []
+    },
+    {
+      "question_text": "На какой странице рисунок 3.5 Входная характеристика транзистора?",
+      "kind": "number",
+      "value": "N/A",
+      "references": []
+    },
+    {
+      "question_text": "Какой наименьший коэффициент усиления по току для транзистора МП?",
+      "kind": "number",
+      "value": "N/A",
+      "references": []
+    }
+  ],
+  "team_email": "79250515615@yandex.com",
+  "submission_name": "Ilia Ris v.4",
+  "details": "Custom pdf parsing + vDB + Router + Parent Document Retrieval + reranking + SO CoT; llm = o3-mini"
+}
