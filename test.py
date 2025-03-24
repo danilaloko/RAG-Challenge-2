@@ -9,7 +9,6 @@ import re
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
 from deep_translator import GoogleTranslator
-from spellchecker import SpellChecker
 import nltk
 from nltk.tokenize import word_tokenize
 
@@ -18,9 +17,6 @@ try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
-
-# Инициализация корректора русского языка
-spell = SpellChecker(language='ru')
 
 # Загрузка модели для постобработки текста (если доступна CUDA)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -33,6 +29,16 @@ try:
 except:
     use_translation_correction = False
     print("⚠️ Модели машинного перевода не загружены. Будет использована только базовая коррекция.")
+
+# Загрузка словаря для проверки орфографии через NLTK
+try:
+    nltk.download('words')
+    from nltk.corpus import words as nltk_words
+    russian_words_available = False
+    print("⚠️ Словарь русских слов недоступен через NLTK. Будет использована только базовая коррекция.")
+except:
+    russian_words_available = False
+    print("⚠️ Словарь слов недоступен. Будет использована только базовая коррекция.")
 
 def preprocess_image(img):
     """Улучшает качество изображения перед OCR для русского текста"""
@@ -116,44 +122,16 @@ def correct_text_with_translation(text):
         print(f"⚠️ Ошибка при коррекции текста через перевод: {e}")
         return text
 
-def correct_spelling(text):
-    """Исправляет орфографические ошибки в русском тексте"""
-    words = word_tokenize(text, language='russian')
-    corrected_words = []
-    
-    for word in words:
-        # Пропускаем пунктуацию и числа
-        if not re.match(r'[а-яА-ЯёЁ]+', word):
-            corrected_words.append(word)
-            continue
-        
-        # Исправляем слово, если оно написано с ошибкой
-        if word.lower() in spell:
-            corrected_words.append(word)
-        else:
-            correction = spell.correction(word.lower())
-            if correction:
-                # Сохраняем оригинальный регистр
-                if word.isupper():
-                    corrected_words.append(correction.upper())
-                elif word[0].isupper():
-                    corrected_words.append(correction.capitalize())
-                else:
-                    corrected_words.append(correction)
-            else:
-                corrected_words.append(word)
-    
-    # Восстанавливаем текст с учетом пробелов и пунктуации
-    corrected_text = ""
-    for i, word in enumerate(corrected_words):
-        if i > 0 and re.match(r'[.,!?:;]', word):
-            corrected_text += word
-        else:
-            if i > 0:
-                corrected_text += " "
-            corrected_text += word
-    
-    return corrected_text
+def correct_spelling_with_google(text):
+    """Исправляет орфографические ошибки с помощью Google Translator"""
+    try:
+        # Используем Google Translator для исправления орфографии
+        translator = GoogleTranslator(source='ru', target='ru')
+        corrected_text = translator.translate(text)
+        return corrected_text
+    except Exception as e:
+        print(f"⚠️ Ошибка при коррекции орфографии через Google: {e}")
+        return text
 
 def post_process_text(text):
     """Постобработка распознанного текста для улучшения качества"""
@@ -176,8 +154,8 @@ def post_process_text(text):
     # Удаление лишних пробелов
     text = re.sub(r'\s+', ' ', text)
     
-    # Исправление орфографии
-    text = correct_spelling(text)
+    # Исправление орфографии через Google Translator
+    text = correct_spelling_with_google(text)
     
     # Исправление с помощью двойного перевода (если доступно)
     if use_translation_correction:
