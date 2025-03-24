@@ -68,40 +68,11 @@ class QuestionsProcessor:
         return "\n\n---\n\n".join(context_parts)
 
     def _extract_references(self, pages_list: list, document_name: str) -> list:
-        # Загрузка данных о документах
-        if self.subset_path is None:
-            raise ValueError("subset_path необходим для обработки ссылок.")
-        self.documents_df = pd.read_csv(self.subset_path)
-        
-        # Проверяем, какие столбцы есть в CSV
-        columns = self.documents_df.columns.tolist()
-        
-        # Определяем имя столбца с названием документа
-        doc_name_column = None
-        for possible_name in ['document_name', 'name', 'title', 'filename']:
-            if possible_name in columns:
-                doc_name_column = possible_name
-                break
-        
-        if not doc_name_column:
-            print(f"Предупреждение: Не найден столбец с названием документа. Доступные столбцы: {columns}")
-            document_sha1 = ""
-        else:
-            # Найти SHA1 документа из CSV
-            matching_rows = self.documents_df[self.documents_df[doc_name_column] == document_name]
-            if matching_rows.empty:
-                document_sha1 = ""
-            else:
-                # Определяем имя столбца с SHA1
-                sha1_column = 'sha1' if 'sha1' in columns else ('hash' if 'hash' in columns else None)
-                if sha1_column:
-                    document_sha1 = matching_rows.iloc[0][sha1_column]
-                else:
-                    document_sha1 = ""
-
+        """Создает ссылки на страницы документа без использования CSV."""
         refs = []
         for page in pages_list:
-            refs.append({"pdf_sha1": document_sha1, "page_index": page})
+            # Создаем ссылки только с номерами страниц, без SHA1
+            refs.append({"document": document_name, "page_index": page})
         return refs
 
     def _validate_page_references(self, claimed_pages: list, retrieval_results: list, min_pages: int = 2, max_pages: int = 8) -> list:
@@ -180,35 +151,12 @@ class QuestionsProcessor:
         return answer_dict
 
     def _extract_documents_from_subset(self, question_text: str) -> list[str]:
-        """Извлекает названия документов из вопроса, сопоставляя с документами в файле подмножества."""
-        if not hasattr(self, 'documents_df'):
-            if self.subset_path is None:
-                raise ValueError("subset_path должен быть указан для использования извлечения из подмножества")
-            self.documents_df = pd.read_csv(self.subset_path)
+        """Извлекает названия документов из вопроса без сопоставления с CSV."""
+        # Просто ищем документы в кавычках
+        found_documents = re.findall(r'"([^"]*)"', question_text)
         
-        # Определяем имя столбца с названием документа
-        columns = self.documents_df.columns.tolist()
-        doc_name_column = None
-        for possible_name in ['document_name', 'name', 'title', 'filename']:
-            if possible_name in columns:
-                doc_name_column = possible_name
-                break
-        
-        if not doc_name_column:
-            print(f"Предупреждение: Не найден столбец с названием документа. Доступные столбцы: {columns}")
-            return []
-        
-        found_documents = []
-        document_names = sorted(self.documents_df[doc_name_column].unique(), key=len, reverse=True)
-        
-        for document in document_names:
-            escaped_document = re.escape(document)
-            
-            pattern = rf'{escaped_document}(?:\W|$)'
-            
-            if re.search(pattern, question_text, re.IGNORECASE):
-                found_documents.append(document)
-                question_text = re.sub(pattern, '', question_text, flags=re.IGNORECASE)
+        # Если документы не найдены в кавычках, можно добавить другую логику
+        # Например, искать по ключевым словам или шаблонам
         
         return found_documents
 
