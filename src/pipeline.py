@@ -494,4 +494,4 @@ if __name__ == "__main__":
     
     # This method processes the questions and answers
     # Questions processing logic depends on the run_config
-    # pipeline.process_questions() 
+    pipeline.process_questions() 

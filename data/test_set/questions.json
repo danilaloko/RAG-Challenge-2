@@ -1,22 +1,15 @@
 [
     {
-      "text": "Did Mercia Asset Management PLC mention any mergers or acquisitions in the annual report?",
-      "kind": "boolean"
+      "text": "Напиши формулу коэффициента усиления по мощности в схеме каскада с общим эмиттером",
+      "kind": "formula"
     },
     {
-      "text": "According to the annual report, what is the Operating margin (%) for Tradition (within the last period or at the end of the last period)? If data is not available, return 'N/A'.",
+      "text": "На какой странице рисунок 3.5 Входная характеристика транзистора?",
       "kind": "number"
     },
     {
-      "text": "Did TSX_Y announce a share buyback plan in the annual report?",
-      "kind": "boolean"
-    },
-    {
-      "text": "What was the largest single spending of CrossFirst Bank on executive compensation in USD?",
-      "kind": "name"
-    },
-    {
-      "text": "Did Holley Inc. mention any mergers or acquisitions in the annual report?",
-      "kind": "boolean"
+      "text": "Какой наименьший коэффициент усиления по току для транзистора МП?",
+      "kind": "number"
     }
   ]
+  
