@@ -24,7 +24,8 @@ class QuestionsProcessor:
         parallel_requests: int = 10,
         api_provider: str = "openai",
         answering_model: str = "gpt-4o-2024-08-06",
-        full_context: bool = False
+        full_context: bool = False,
+        new_challenge_pipeline: bool = False
     ):
         self.questions = self._load_questions(questions_file_path)
         self.documents_dir = Path(documents_dir)
@@ -40,6 +41,7 @@ class QuestionsProcessor:
         self.api_provider = api_provider
         self.openai_processor = APIProcessor(provider=api_provider)
         self.full_context = full_context
+        self.new_challenge_pipeline = new_challenge_pipeline
 
         self.answer_details = []
         self.detail_counter = 0
