@@ -79,7 +79,7 @@ def pdf_to_high_accuracy_ocr(pdf_path, output_txt_path=None, dpi=400, lang="rus+
 
 # Пример использования
 if __name__ == "__main__":
-    input_pdf = "document.pdf"
+    input_pdf = "Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf"
     output_txt = "output_ocr.txt"
     
     if not os.path.exists(input_pdf):
