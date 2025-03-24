@@ -16,7 +16,6 @@ class QuestionsProcessor:
         vector_db_dir: Union[str, Path] = './vector_dbs',
         documents_dir: Union[str, Path] = './documents',
         questions_file_path: Optional[Union[str, Path]] = None,
-        new_challenge_pipeline: bool = False,
         subset_path: Optional[Union[str, Path]] = None,
         parent_document_retrieval: bool = False,
         llm_reranking: bool = False,
@@ -32,7 +31,6 @@ class QuestionsProcessor:
         self.vector_db_dir = Path(vector_db_dir)
         self.subset_path = Path(subset_path) if subset_path else None
         
-        self.new_challenge_pipeline = new_challenge_pipeline
         self.return_parent_pages = parent_document_retrieval
         self.llm_reranking = llm_reranking
         self.llm_reranking_sample_size = llm_reranking_sample_size
@@ -60,34 +58,35 @@ class QuestionsProcessor:
         
         context_parts = []
         for result in retrieval_results:
+            document_name = result.get('document_name', 'Неизвестный документ')
             page_number = result['page']
             text = result['text']
-            context_parts.append(f'Text retrieved from page {page_number}: \n"""\n{text}\n"""')
+            context_parts.append(f'Текст из документа "{document_name}", страница {page_number}: \n"""\n{text}\n"""')
             
         return "\n\n---\n\n".join(context_parts)
 
-    def _extract_references(self, pages_list: list, company_name: str) -> list:
-        # Load companies data
+    def _extract_references(self, pages_list: list, document_name: str) -> list:
+        # Загрузка данных о документах
         if self.subset_path is None:
-            raise ValueError("subset_path is required for new challenge pipeline when processing references.")
-        self.companies_df = pd.read_csv(self.subset_path)
+            raise ValueError("subset_path необходим для обработки ссылок.")
+        self.documents_df = pd.read_csv(self.subset_path)
 
-        # Find the company's SHA1 from the subset CSV
-        matching_rows = self.companies_df[self.companies_df['company_name'] == company_name]
+        # Найти SHA1 документа из CSV
+        matching_rows = self.documents_df[self.documents_df['document_name'] == document_name]
         if matching_rows.empty:
-            company_sha1 = ""
+            document_sha1 = ""
         else:
-            company_sha1 = matching_rows.iloc[0]['sha1']
+            document_sha1 = matching_rows.iloc[0]['sha1']
 
         refs = []
         for page in pages_list:
-            refs.append({"pdf_sha1": company_sha1, "page_index": page})
+            refs.append({"pdf_sha1": document_sha1, "page_index": page})
         return refs
 
     def _validate_page_references(self, claimed_pages: list, retrieval_results: list, min_pages: int = 2, max_pages: int = 8) -> list:
         """
-        Validate that all page numbers mentioned in the LLM's answer are actually from the retrieval results.
-        If fewer than min_pages valid references remain, add top pages from retrieval results.
+        Проверяет, что все номера страниц, упомянутые в ответе LLM, действительно есть в результатах поиска.
+        Если валидных ссылок меньше min_pages, добавляет верхние страницы из результатов поиска.
         """
         if claimed_pages is None:
             claimed_pages = []
@@ -98,7 +97,7 @@ class QuestionsProcessor:
         
         if len(validated_pages) < len(claimed_pages):
             removed_pages = set(claimed_pages) - set(validated_pages)
-            print(f"Warning: Removed {len(removed_pages)} hallucinated page references: {removed_pages}")
+            print(f"Предупреждение: Удалено {len(removed_pages)} несуществующих ссылок на страницы: {removed_pages}")
         
         if len(validated_pages) < min_pages and retrieval_results:
             existing_pages = set(validated_pages)
@@ -113,13 +112,12 @@ class QuestionsProcessor:
                         break
         
         if len(validated_pages) > max_pages:
-            print(f"Trimming references from {len(validated_pages)} to {max_pages} pages")
+            print(f"Сокращение ссылок с {len(validated_pages)} до {max_pages} страниц")
             validated_pages = validated_pages[:max_pages]
         
         return validated_pages
 
-    def get_answer_for_company(self, company_name: str, question: str, schema: str) -> dict:
-
+    def get_answer_for_document(self, document_name: str, question: str, schema: str) -> dict:
         if self.llm_reranking:
             retriever = HybridRetriever(
                 vector_db_dir=self.vector_db_dir,
@@ -132,10 +130,10 @@ class QuestionsProcessor:
             )
 
         if self.full_context:
-            retrieval_results = retriever.retrieve_all(company_name)
+            retrieval_results = retriever.retrieve_all(document_name)
         else:           
-            retrieval_results = retriever.retrieve_by_company_name(
-                company_name=company_name,
+            retrieval_results = retriever.retrieve_by_document_name(
+                document_name=document_name,
                 query=question,
                 llm_reranking_sample_size=self.llm_reranking_sample_size,
                 top_n=self.top_n_retrieval,
@@ -143,7 +141,7 @@ class QuestionsProcessor:
             )
         
         if not retrieval_results:
-            raise ValueError("No relevant context found")
+            raise ValueError("Не найден релевантный контекст")
         
         rag_context = self._format_retrieval_results(retrieval_results)
         answer_dict = self.openai_processor.get_answer_from_rag_context(
@@ -153,52 +151,105 @@ class QuestionsProcessor:
             model=self.answering_model
         )
         self.response_data = self.openai_processor.response_data
-        if self.new_challenge_pipeline:
-            pages = answer_dict.get("relevant_pages", [])
-            validated_pages = self._validate_page_references(pages, retrieval_results)
-            answer_dict["relevant_pages"] = validated_pages
-            answer_dict["references"] = self._extract_references(validated_pages, company_name)
+        
+        pages = answer_dict.get("relevant_pages", [])
+        validated_pages = self._validate_page_references(pages, retrieval_results)
+        answer_dict["relevant_pages"] = validated_pages
+        answer_dict["references"] = self._extract_references(validated_pages, document_name)
         return answer_dict
 
-    def _extract_companies_from_subset(self, question_text: str) -> list[str]:
-        """Extract company names from a question by matching against companies in the subset file."""
-        if not hasattr(self, 'companies_df'):
+    def _extract_documents_from_subset(self, question_text: str) -> list[str]:
+        """Извлекает названия документов из вопроса, сопоставляя с документами в файле подмножества."""
+        if not hasattr(self, 'documents_df'):
             if self.subset_path is None:
-                raise ValueError("subset_path must be provided to use subset extraction")
-            self.companies_df = pd.read_csv(self.subset_path)
+                raise ValueError("subset_path должен быть указан для использования извлечения из подмножества")
+            self.documents_df = pd.read_csv(self.subset_path)
         
-        found_companies = []
-        company_names = sorted(self.companies_df['company_name'].unique(), key=len, reverse=True)
+        found_documents = []
+        document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)
         
-        for company in company_names:
-            escaped_company = re.escape(company)
+        for document in document_names:
+            escaped_document = re.escape(document)
             
-            pattern = rf'{escaped_company}(?:\W|$)'
+            pattern = rf'{escaped_document}(?:\W|$)'
             
             if re.search(pattern, question_text, re.IGNORECASE):
-                found_companies.append(company)
+                found_documents.append(document)
                 question_text = re.sub(pattern, '', question_text, flags=re.IGNORECASE)
         
-        return found_companies
+        return found_documents
 
     def process_question(self, question: str, schema: str):
-        if self.new_challenge_pipeline:
-            extracted_companies = self._extract_companies_from_subset(question)
-        else:
-            extracted_companies = re.findall(r'"([^"]*)"', question)
+        # Пытаемся извлечь названия документов из вопроса
+        extracted_documents = self._extract_documents_from_subset(question)
         
-        if len(extracted_companies) == 0:
-            raise ValueError("No company name found in the question.")
+        # Если документы не найдены в вопросе, ищем в кавычках
+        if len(extracted_documents) == 0:
+            extracted_documents = re.findall(r'"([^"]*)"', question)
         
-        if len(extracted_companies) == 1:
-            company_name = extracted_companies[0]
-            answer_dict = self.get_answer_for_company(company_name=company_name, question=question, schema=schema)
+        if len(extracted_documents) == 0:
+            # Если документы не указаны, выполняем поиск по всем документам
+            return self.process_general_question(question, schema)
+        
+        if len(extracted_documents) == 1:
+            document_name = extracted_documents[0]
+            answer_dict = self.get_answer_for_document(document_name=document_name, question=question, schema=schema)
             return answer_dict
         else:
-            return self.process_comparative_question(question, extracted_companies, schema)
+            return self.process_comparative_question(question, extracted_documents, schema)
     
+    def process_general_question(self, question: str, schema: str) -> dict:
+        """Обрабатывает вопрос без указания конкретного документа, ищет по всей базе."""
+        if self.llm_reranking:
+            retriever = HybridRetriever(
+                vector_db_dir=self.vector_db_dir,
+                documents_dir=self.documents_dir
+            )
+        else:
+            retriever = VectorRetriever(
+                vector_db_dir=self.vector_db_dir,
+                documents_dir=self.documents_dir
+            )
+        
+        # Поиск по всем документам
+        retrieval_results = retriever.retrieve_by_query(
+            query=question,
+            llm_reranking_sample_size=self.llm_reranking_sample_size,
+            top_n=self.top_n_retrieval,
+            return_parent_pages=self.return_parent_pages
+        )
+        
+        if not retrieval_results:
+            raise ValueError("Не найден релевантный контекст")
+        
+        rag_context = self._format_retrieval_results(retrieval_results)
+        answer_dict = self.openai_processor.get_answer_from_rag_context(
+            question=question,
+            rag_context=rag_context,
+            schema=schema,
+            model=self.answering_model
+        )
+        self.response_data = self.openai_processor.response_data
+        
+        # Группируем ссылки по документам
+        document_pages = {}
+        for result in retrieval_results:
+            doc_name = result.get('document_name', 'unknown')
+            if doc_name not in document_pages:
+                document_pages[doc_name] = []
+            document_pages[doc_name].append(result['page'])
+        
+        # Собираем все ссылки
+        all_references = []
+        for doc_name, pages in document_pages.items():
+            refs = self._extract_references(pages, doc_name)
+            all_references.extend(refs)
+        
+        answer_dict["references"] = all_references
+        return answer_dict
+
     def _create_answer_detail_ref(self, answer_dict: dict, question_index: int) -> str:
-        """Create a reference ID for answer details and store the details"""
+        """Создает ID ссылки для деталей ответа и сохраняет детали"""
         ref_id = f"#/answer_details/{question_index}"
         with self._lock:
             self.answer_details[question_index] = {
@@ -211,17 +262,17 @@ class QuestionsProcessor:
         return ref_id
 
     def _calculate_statistics(self, processed_questions: List[dict], print_stats: bool = False) -> dict:
-        """Calculate statistics about processed questions."""
+        """Рассчитывает статистику по обработанным вопросам."""
         total_questions = len(processed_questions)
         error_count = sum(1 for q in processed_questions if "error" in q)
         na_count = sum(1 for q in processed_questions if (q.get("value") if "value" in q else q.get("answer")) == "N/A")
         success_count = total_questions - error_count - na_count
         if print_stats:
-            print(f"\nFinal Processing Statistics:")
-            print(f"Total questions: {total_questions}")
-            print(f"Errors: {error_count} ({(error_count/total_questions)*100:.1f}%)")
-            print(f"N/A answers: {na_count} ({(na_count/total_questions)*100:.1f}%)")
-            print(f"Successfully answered: {success_count} ({(success_count/total_questions)*100:.1f}%)\n")
+            print(f"\nИтоговая статистика обработки:")
+            print(f"Всего вопросов: {total_questions}")
+            print(f"Ошибок: {error_count} ({(error_count/total_questions)*100:.1f}%)")
+            print(f"Ответов N/A: {na_count} ({(na_count/total_questions)*100:.1f}%)")
+            print(f"Успешно отвечено: {success_count} ({(success_count/total_questions)*100:.1f}%)\n")
         
         return {
             "total_questions": total_questions,
@@ -268,12 +319,8 @@ class QuestionsProcessor:
     def _process_single_question(self, question_data: dict) -> dict:
         question_index = question_data.get("_question_index", 0)
         
-        if self.new_challenge_pipeline:
-            question_text = question_data.get("text")
-            schema = question_data.get("kind")
-        else:
-            question_text = question_data.get("question")
-            schema = question_data.get("schema")
+        question_text = question_data.get("question")
+        schema = question_data.get("schema")
         try:
             answer_dict = self.process_question(question_text, schema)
             
@@ -283,39 +330,22 @@ class QuestionsProcessor:
                     "reasoning_summary": None,
                     "relevant_pages": None
                 }, question_index)
-                if self.new_challenge_pipeline:
-                    return {
-                        "question_text": question_text,
-                        "kind": schema,
-                        "value": None,
-                        "references": [],
-                        "error": answer_dict["error"],
-                        "answer_details": {"$ref": detail_ref}
-                    }
-                else:
-                    return {
-                        "question": question_text,
-                        "schema": schema,
-                        "answer": None,
-                        "error": answer_dict["error"],
-                        "answer_details": {"$ref": detail_ref},
-                    }
-            detail_ref = self._create_answer_detail_ref(answer_dict, question_index)
-            if self.new_challenge_pipeline:
                 return {
                     "question_text": question_text,
                     "kind": schema,
-                    "value": answer_dict.get("final_answer"),
-                    "references": answer_dict.get("references", []),
+                    "value": None,
+                    "references": [],
+                    "error": answer_dict["error"],
                     "answer_details": {"$ref": detail_ref}
                 }
-            else:
-                return {
-                    "question": question_text,
-                    "schema": schema,
-                    "answer": answer_dict.get("final_answer"),
-                    "answer_details": {"$ref": detail_ref},
-                }
+            detail_ref = self._create_answer_detail_ref(answer_dict, question_index)
+            return {
+                "question_text": question_text,
+                "kind": schema,
+                "value": answer_dict.get("final_answer"),
+                "references": answer_dict.get("references", []),
+                "answer_details": {"$ref": detail_ref},
+            }
         except Exception as err:
             return self._handle_processing_error(question_text, schema, err, question_index)
 
@@ -341,23 +371,14 @@ class QuestionsProcessor:
         print(f"Error message: {error_message}")
         print(f"Full traceback:\n{tb}\n")
         
-        if self.new_challenge_pipeline:
-            return {
-                "question_text": question_text,
-                "kind": schema,
-                "value": None,
-                "references": [],
-                "error": f"{type(err).__name__}: {error_message}",
-                "answer_details": {"$ref": error_ref}
-            }
-        else:
-            return {
-                "question": question_text,
-                "schema": schema,
-                "answer": None,
-                "error": f"{type(err).__name__}: {error_message}",
-                "answer_details": {"$ref": error_ref},
-            }
+        return {
+            "question_text": question_text,
+            "kind": schema,
+            "value": None,
+            "references": [],
+            "error": f"{type(err).__name__}: {error_message}",
+            "answer_details": {"$ref": error_ref},
+        }
 
     def _post_process_submission_answers(self, processed_questions: List[dict]) -> List[dict]:
         """
@@ -450,62 +471,62 @@ class QuestionsProcessor:
         )
         return result
 
-    def process_comparative_question(self, question: str, companies: List[str], schema: str) -> dict:
+    def process_comparative_question(self, question: str, documents: List[str], schema: str) -> dict:
         """
-        Process a question involving multiple companies in parallel:
-        1. Rephrase the comparative question into individual questions
-        2. Process each individual question using parallel threads
-        3. Combine results into final comparative answer
+        Обрабатывает вопрос, касающийся нескольких документов параллельно:
+        1. Перефразирует сравнительный вопрос в отдельные вопросы
+        2. Обрабатывает каждый отдельный вопрос, используя параллельные потоки
+        3. Объединяет результаты в итоговый сравнительный ответ
         """
-        # Step 1: Rephrase the comparative question
+        # Шаг 1: Перефразируем сравнительный вопрос
         rephrased_questions = self.openai_processor.get_rephrased_questions(
             original_question=question,
-            companies=companies
+            documents=documents  # Заменили companies на documents
         )
         
         individual_answers = {}
         aggregated_references = []
         
-        # Step 2: Process each individual question in parallel
-        def process_company_question(company: str) -> tuple[str, dict]:
-            """Helper function to process one company's question and return (company, answer)"""
-            sub_question = rephrased_questions.get(company)
+        # Шаг 2: Обрабатываем каждый отдельный вопрос параллельно
+        def process_document_question(document: str) -> tuple[str, dict]:
+            """Вспомогательная функция для обработки вопроса по одному документу"""
+            sub_question = rephrased_questions.get(document)
             if not sub_question:
-                raise ValueError(f"Could not generate sub-question for company: {company}")
+                raise ValueError(f"Не удалось сгенерировать подвопрос для документа: {document}")
             
-            answer_dict = self.get_answer_for_company(
-                company_name=company, 
+            answer_dict = self.get_answer_for_document(
+                document_name=document, 
                 question=sub_question, 
-                schema="number"
+                schema="text"  # Изменили schema с "number" на "text"
             )
-            return company, answer_dict
+            return document, answer_dict
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future_to_company = {
-                executor.submit(process_company_question, company): company 
-                for company in companies
+            future_to_document = {
+                executor.submit(process_document_question, document): document 
+                for document in documents
             }
             
-            for future in concurrent.futures.as_completed(future_to_company):
+            for future in concurrent.futures.as_completed(future_to_document):
                 try:
-                    company, answer_dict = future.result()
-                    individual_answers[company] = answer_dict
+                    document, answer_dict = future.result()
+                    individual_answers[document] = answer_dict
                     
-                    company_references = answer_dict.get("references", [])
-                    aggregated_references.extend(company_references)
+                    document_references = answer_dict.get("references", [])
+                    aggregated_references.extend(document_references)
                 except Exception as e:
-                    company = future_to_company[future]
-                    print(f"Error processing company {company}: {str(e)}")
+                    document = future_to_document[future]
+                    print(f"Ошибка обработки документа {document}: {str(e)}")
                     raise
         
-        # Remove duplicate references
+        # Удаляем дублирующиеся ссылки
         unique_refs = {}
         for ref in aggregated_references:
             key = (ref.get("pdf_sha1"), ref.get("page_index"))
             unique_refs[key] = ref
         aggregated_references = list(unique_refs.values())
         
-        # Step 3: Get the comparative answer using all individual answers
+        # Шаг 3: Получаем сравнительный ответ, используя все индивидуальные ответы
         comparative_answer = self.openai_processor.get_answer_from_rag_context(
             question=question,
             rag_context=individual_answers,
