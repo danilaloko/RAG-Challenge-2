@@ -283,51 +283,54 @@ class QuestionsProcessor:
             "success_count": success_count
         }
 
-    def process_questions_list(self, questions_list: List[dict], output_path: str = None, submission_file: bool = False, team_email: str = "", submission_name: str = "", pipeline_details: str = "") -> dict:
-        total_questions = len(questions_list)
-        # Add index to each question so we know where to write the answer details
-        questions_with_index = [{**q, "_question_index": i} for i, q in enumerate(questions_list)]
-        self.answer_details = [None] * total_questions  # Preallocate list for answer details
-        processed_questions = []
-        parallel_threads = self.parallel_requests
-
-        if parallel_threads <= 1:
-            for question_data in tqdm(questions_with_index, desc="Processing questions"):
-                processed_question = self._process_single_question(question_data)
-                processed_questions.append(processed_question)
-                if output_path:
-                    self._save_progress(processed_questions, output_path, submission_file=submission_file, team_email=team_email, submission_name=submission_name, pipeline_details=pipeline_details)
-        else:
-            with tqdm(total=total_questions, desc="Processing questions") as pbar:
-                for i in range(0, total_questions, parallel_threads):
-                    batch = questions_with_index[i : i + parallel_threads]
-                    with concurrent.futures.ThreadPoolExecutor(max_workers=parallel_threads) as executor:
-                        # executor.map will return results in the same order as the input list.
-                        batch_results = list(executor.map(self._process_single_question, batch))
-                    processed_questions.extend(batch_results)
+    def process_questions_list(self, questions_list: List[dict], print_stats: bool = False) -> List[dict]:
+        """Обрабатывает список вопросов и возвращает список ответов."""
+        if not questions_list:
+            return []
+        
+        self.answer_details = [None] * len(questions_list)
+        results = []
+        
+        # Разбиваем вопросы на батчи для параллельной обработки
+        batch_size = self.parallel_requests
+        batches = [questions_list[i:i + batch_size] for i in range(0, len(questions_list), batch_size)]
+        
+        with tqdm(total=len(questions_list), desc="Processing questions") as pbar:
+            for batch_idx, batch in enumerate(batches):
+                # Создаем список кортежей (вопрос, индекс)
+                batch_with_indices = [(question, batch_idx * batch_size + i) for i, question in enumerate(batch)]
+                
+                with concurrent.futures.ThreadPoolExecutor(max_workers=self.parallel_requests) as executor:
+                    # Используем starmap вместо map для передачи нескольких аргументов
+                    batch_results = []
+                    for question, idx in batch_with_indices:
+                        future = executor.submit(self._process_single_question, question, idx)
+                        batch_results.append(future)
                     
-                    if output_path:
-                        self._save_progress(processed_questions, output_path, submission_file=submission_file, team_email=team_email, submission_name=submission_name, pipeline_details=pipeline_details)
-                    pbar.update(len(batch_results))
+                    # Получаем результаты по мере их готовности
+                    for future in concurrent.futures.as_completed(batch_results):
+                        try:
+                            result = future.result()
+                            results.append(result)
+                            pbar.update(1)
+                        except Exception as e:
+                            print(f"Ошибка при обработке вопроса: {str(e)}")
+                            pbar.update(1)
         
-        statistics = self._calculate_statistics(processed_questions, print_stats = True)
+        # Рассчитываем и выводим статистику
+        stats = self._calculate_statistics(results, print_stats)
         
-        return {
-            "questions": processed_questions,
-            "answer_details": self.answer_details,
-            "statistics": statistics
-        }
+        return results
 
-    def _process_single_question(self, question_data: dict, question_index: int) -> dict:
+    def _process_single_question(self, question_text: str, question_index: int) -> dict:
         """Обрабатывает один вопрос и возвращает результат."""
         try:
-            question_text = question_data.get("question")
-            schema = question_data.get("schema", "text")
+            schema = "text"
             
             # Проверка на None или пустой вопрос
             if question_text is None or question_text.strip() == "":
                 return {
-                    "question_id": question_data.get("question_id", f"q{question_index}"),
+                    "question_id": f"q{question_index}",
                     "error": "Вопрос отсутствует или пустой",
                     "answer": "N/A"
                 }
@@ -339,7 +342,7 @@ class QuestionsProcessor:
             
             # Формируем результат
             result = {
-                "question_id": question_data.get("question_id", f"q{question_index}"),
+                "question_id": f"q{question_index}",
                 "answer": answer_dict.get("answer", "N/A"),
                 "answer_details_ref": detail_ref
             }
@@ -361,7 +364,7 @@ class QuestionsProcessor:
             print(f"Full traceback:\n{error_trace}")
             
             return {
-                "question_id": question_data.get("question_id", f"q{question_index}"),
+                "question_id": f"q{question_index}",
                 "error": str(e),
                 "error_type": type(e).__name__,
                 "answer": "N/A"
@@ -481,7 +484,6 @@ class QuestionsProcessor:
     def process_all_questions(self, output_path: str = 'questions_with_answers.json', team_email: str = "79250515615@yandex.com", submission_name: str = "Ilia_Ris SO CoT + Parent Document Retrieval", submission_file: bool = False, pipeline_details: str = ""):
         result = self.process_questions_list(
             self.questions,
-            output_path,
             submission_file=submission_file,
             team_email=team_email,
             submission_name=submission_name,
