@@ -5,12 +5,13 @@ import numpy as np
 import openai
 from typing import List, Dict, Any
 from sentence_transformers import SentenceTransformer
-import dotenv
+from dotenv import load_dotenv
 import httpx
 from openai import OpenAI
 
 # Настройка API ключа OpenAI
-openai.api_key = dotenv.get("OPENAI_API_KEY")
+load_dotenv()  # Загружаем переменные окружения из .env файла
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Получаем ключ из переменных окружения
 
 class VectorDBQuerier:
     def __init__(self, faiss_db_paths: List[str], model_name: str = "all-MiniLM-L6-v2"):
