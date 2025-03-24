@@ -14,7 +14,7 @@ load_dotenv()  # Загружаем переменные окружения из
 openai.api_key = os.getenv("OPENAI_API_KEY")  # Получаем ключ из переменных окружения
 
 class VectorDBQuerier:
-    def __init__(self, faiss_db_paths: List[str], model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"):
+    def __init__(self, faiss_db_paths: List[str], model_name: str = "sentence-transformers/LaBSE"):
         """
         Инициализация класса для работы с векторными БД FAISS
         
@@ -25,9 +25,12 @@ class VectorDBQuerier:
         self.faiss_dbs = []
         self.texts = []
         
-        # Используем модель с большей размерностью
         print(f"Загрузка модели {model_name}...")
         self.model = SentenceTransformer(model_name)
+        
+        # Проверяем размерность эмбеддингов модели
+        test_embedding = self.model.encode(["тестовый текст"])[0]
+        print(f"Размерность эмбеддингов модели: {len(test_embedding)}")
         
         # Загрузка всех векторных БД
         for db_path in faiss_db_paths:
@@ -37,6 +40,10 @@ class VectorDBQuerier:
             # Загрузка индекса FAISS
             index = faiss.read_index(db_path)
             print(f"Размерность индекса FAISS в {db_path}: {index.d}")
+            
+            if index.d != len(test_embedding):
+                raise ValueError(f"Размерность индекса ({index.d}) не совпадает с размерностью модели ({len(test_embedding)})")
+            
             self.faiss_dbs.append(index)
             
             # Получаем имя файла без пути и расширения
