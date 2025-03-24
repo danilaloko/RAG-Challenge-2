@@ -14,7 +14,7 @@ load_dotenv()  # Загружаем переменные окружения из
 openai.api_key = os.getenv("OPENAI_API_KEY")  # Получаем ключ из переменных окружения
 
 class VectorDBQuerier:
-    def __init__(self, faiss_db_paths: List[str], model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, faiss_db_paths: List[str], model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"):
         """
         Инициализация класса для работы с векторными БД FAISS
         
@@ -24,6 +24,9 @@ class VectorDBQuerier:
         """
         self.faiss_dbs = []
         self.texts = []
+        
+        # Используем модель с большей размерностью
+        print(f"Загрузка модели {model_name}...")
         self.model = SentenceTransformer(model_name)
         
         # Загрузка всех векторных БД
@@ -31,34 +34,24 @@ class VectorDBQuerier:
             if not os.path.exists(db_path):
                 raise FileNotFoundError(f"FAISS база данных не найдена: {db_path}")
             
+            # Загрузка индекса FAISS
+            index = faiss.read_index(db_path)
+            print(f"Размерность индекса FAISS в {db_path}: {index.d}")
+            self.faiss_dbs.append(index)
+            
             # Получаем имя файла без пути и расширения
             db_filename = os.path.basename(db_path)
             db_name = os.path.splitext(db_filename)[0]
             
-            # Формируем путь к соответствующему JSON-файлу в указанном каталоге
+            # Формируем путь к соответствующему JSON-файлу
             text_path = os.path.join("data/test_set/databases/chunked_reports", f"{db_name}.json")
             
             if not os.path.exists(text_path):
                 raise FileNotFoundError(f"Файл с текстами не найден: {text_path}")
             
-            # Загрузка индекса FAISS
-            index = faiss.read_index(db_path)
-            self.faiss_dbs.append(index)
-            
             # Загрузка текстов
             with open(text_path, 'r', encoding='utf-8') as f:
                 texts = json.load(f)
-            
-            # Вывод информации о структуре JSON-файла
-            print(f"Тип данных в JSON-файле {text_path}: {type(texts)}")
-            if isinstance(texts, list):
-                print(f"Количество элементов в списке: {len(texts)}")
-                if len(texts) > 0:
-                    print(f"Тип первого элемента: {type(texts[0])}")
-            elif isinstance(texts, dict):
-                print(f"Количество ключей в словаре: {len(texts.keys())}")
-                print(f"Примеры ключей: {list(texts.keys())[:5]}")
-            
             self.texts.append(texts)
     
     def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
