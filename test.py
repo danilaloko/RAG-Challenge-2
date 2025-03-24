@@ -3,7 +3,7 @@ import os
 import faiss
 import numpy as np
 import openai
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import httpx
@@ -118,51 +118,135 @@ class VectorDBQuerier:
         print(f"Улучшенный запрос: {enhanced_query}")
         return enhanced_query
 
-    def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
+    def analyze_chunks_relevance(self, query: str, chunks: List[Dict[str, Any]]) -> Tuple[bool, str]:
         """
-        Поиск релевантных фрагментов текста по запросу
+        Анализ релевантности найденных чанков через GPT
         
         Args:
-            query: текстовый запрос
-            top_k: количество возвращаемых результатов
+            query: исходный запрос пользователя
+            chunks: найденные фрагменты текста
             
         Returns:
-            список словарей с найденными фрагментами и их метаданными
+            tuple: (достаточно ли информации, рекомендации по расширению поиска)
         """
-        # Предварительная обработка запроса
-        enhanced_query = self.preprocess_query(query)
+        # Подготовка контекста из чанков
+        context = "\n\n".join([f"[Фрагмент {i+1}]: {chunk['text']}" for i, chunk in enumerate(chunks)])
         
-        # Кодирование улучшенного запроса
-        query_embedding = self.encode_text(enhanced_query)
+        prompt = f"""Проанализируй, содержат ли предоставленные фрагменты текста достаточно информации для ответа на вопрос.
+
+Вопрос: {query}
+
+Фрагменты текста:
+{context}
+
+Дай ответ в формате:
+1. Достаточно ли информации (да/нет)
+2. Если информации недостаточно, укажи какие дополнительные темы или термины нужно искать"""
+
+        # Настройка прокси для запроса
+        proxy = "http://user156811:eb49hn@45.159.182.77:5442"
         
+        # Создание клиента OpenAI с прокси
+        client = OpenAI(
+            api_key=openai.api_key,
+            http_client=httpx.Client(proxies=proxy)
+        )
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Ты - эксперт по анализу технической документации. Твоя задача - определить, достаточно ли информации в предоставленных фрагментах для ответа на вопрос."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=256
+        )
+        
+        analysis = response.choices[0].message.content.strip().lower()
+        
+        # Определяем, достаточно ли информации
+        has_enough_info = "да" in analysis.split('\n')[0]
+        suggestions = analysis.split('\n', 1)[1] if '\n' in analysis else ""
+        
+        return has_enough_info, suggestions
+
+    def search(self, query: str, top_k: int = 5, max_attempts: int = 3) -> List[Dict[str, Any]]:
+        """
+        Поиск релевантных фрагментов текста по запросу с возможностью расширения поиска
+        
+        Args:
+            query: запрос пользователя
+            top_k: количество возвращаемых результатов
+            max_attempts: максимальное количество попыток поиска
+            
+        Returns:
+            список найденных фрагментов
+        """
+        current_query = query
         all_results = []
+        attempts = 0
         
-        for i, index in enumerate(self.faiss_dbs):
-            query_embedding_resized = np.array([query_embedding], dtype=np.float32)
+        while attempts < max_attempts:
+            # Предварительная обработка запроса
+            enhanced_query = self.preprocess_query(current_query)
             
-            distances, indices = index.search(query_embedding_resized, top_k)
+            # Поиск по текущему запросу
+            query_embedding = self.encode_text(enhanced_query)
+            current_results = []
             
-            # Получаем chunks из JSON
-            chunks = self.texts[i]['content']['chunks']
+            for i, index in enumerate(self.faiss_dbs):
+                query_embedding_resized = np.array([query_embedding], dtype=np.float32)
+                distances, indices = index.search(query_embedding_resized, top_k)
+                
+                chunks = self.texts[i]['content']['chunks']
+                
+                for j, idx in enumerate(indices[0]):
+                    if idx != -1 and idx < len(chunks):
+                        try:
+                            chunk = chunks[idx]
+                            result = {
+                                "text": chunk["text"],
+                                "distance": float(distances[0][j]),
+                                "db_index": i,
+                                "text_index": idx,
+                                "page": chunk["page"]
+                            }
+                            current_results.append(result)
+                        except Exception as e:
+                            print(f"Ошибка при обработке результата: {e}")
+                            continue
             
-            for j, idx in enumerate(indices[0]):
-                if idx != -1 and idx < len(chunks):
-                    try:
-                        chunk = chunks[idx]
-                        result = {
-                            "text": chunk["text"],
-                            "distance": float(distances[0][j]),
-                            "db_index": i,
-                            "text_index": idx,
-                            "page": chunk["page"]  # Добавляем номер страницы для контекста
-                        }
-                        all_results.append(result)
-                    except Exception as e:
-                        print(f"Ошибка при обработке результата: {e}")
-                        continue
+            # Добавляем новые результаты к общему списку
+            all_results.extend(current_results)
+            
+            # Сортируем все результаты по релевантности
+            all_results.sort(key=lambda x: x["distance"])
+            unique_results = []
+            seen_texts = set()
+            
+            # Удаляем дубликаты
+            for result in all_results:
+                if result["text"] not in seen_texts:
+                    seen_texts.add(result["text"])
+                    unique_results.append(result)
+            
+            # Проверяем релевантность через GPT
+            has_enough_info, suggestions = self.analyze_chunks_relevance(query, unique_results[:top_k])
+            
+            if has_enough_info:
+                print("Найдена достаточная информация для ответа")
+                return unique_results[:top_k]
+            
+            # Если информации недостаточно и есть ещё попытки
+            if attempts < max_attempts - 1:
+                print(f"Попытка {attempts + 1}: Информации недостаточно. Расширяем поиск.")
+                print(f"Рекомендации по расширению: {suggestions}")
+                current_query = suggestions if suggestions else query
+            
+            attempts += 1
         
-        all_results.sort(key=lambda x: x["distance"])
-        return all_results[:top_k]
+        print("Достигнуто максимальное количество попыток поиска")
+        return unique_results[:top_k]
 
 def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
     """
