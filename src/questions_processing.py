@@ -486,6 +486,7 @@ class QuestionsProcessor:
         output_file: Optional[Union[str, Path]] = None,
         submission_file: Optional[Union[str, Path]] = None,
         output_path: Optional[Union[str, Path]] = None,
+        team_email: Optional[str] = None,
         print_stats: bool = True
     ) -> List[dict]:
         """Обрабатывает все вопросы из self.questions и сохраняет результаты."""
@@ -504,15 +505,34 @@ class QuestionsProcessor:
         
         # Сохраняем результаты, если указан output_file
         if actual_output_file:
+            # Добавляем email команды в результаты, если он указан
+            if team_email:
+                output_data = {
+                    "team_email": team_email,
+                    "results": results
+                }
+            else:
+                output_data = results
+            
             with open(actual_output_file, 'w', encoding='utf-8') as f:
-                json.dump(results, f, ensure_ascii=False, indent=2)
+                json.dump(output_data, f, ensure_ascii=False, indent=2)
             print(f"Результаты сохранены в {actual_output_file}")
         
         # Создаем файл для отправки, если указан submission_file
         if submission_file:
             submission_data = self._prepare_submission_data(results)
+            
+            # Добавляем email команды в данные для отправки, если он указан
+            if team_email:
+                submission_output = {
+                    "team_email": team_email,
+                    "results": submission_data
+                }
+            else:
+                submission_output = submission_data
+            
             with open(submission_file, 'w', encoding='utf-8') as f:
-                json.dump(submission_data, f, ensure_ascii=False, indent=2)
+                json.dump(submission_output, f, ensure_ascii=False, indent=2)
             print(f"Файл для отправки сохранен в {submission_file}")
         
         return results
