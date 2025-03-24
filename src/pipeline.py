@@ -460,11 +460,11 @@ if __name__ == "__main__":
     #pipeline.parse_pdf_reports_parallel(chunk_size=2, max_workers=10, ocr_engine="tesseract")
 
     # Или через общий метод
-    pipeline.parse_pdf_reports(parallel=False, chunk_size=2, max_workers=10, ocr_engine="tesseract")
+    #pipeline.parse_pdf_reports(parallel=False, chunk_size=2, max_workers=10, ocr_engine="tesseract")
     
     # This method parses pdf reports into a jsons. It creates jsons in the debug/data_01_parsed_reports. These jsons used in the next steps. 
     # It also stores raw output of docling in debug/data_01_parsed_reports_debug, these jsons contain a LOT of metadata, and not used anywhere
-    #pipeline.parse_pdf_reports_sequential() 
+    pipeline.parse_pdf_reports_sequential() 
     
     
     # This method should be called only if you want run configs with serialized tables
