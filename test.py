@@ -66,7 +66,7 @@ def process_pdf(pdf_path, output_txt_path=None, output_md_path=None):
 
 if __name__ == "__main__":
     # Указываем пути к файлам прямо в коде
-    pdf_path = "Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf"  # Укажите здесь путь к вашему PDF файлу
+    pdf_path = "ЛекцииТММ Эдельштейн.pdf"  # Укажите здесь путь к вашему PDF файлу
     output_txt_path = "результат_docling.txt"  # Укажите здесь путь для сохранения текстового результата
     output_md_path = "результат_docling.md"  # Укажите здесь путь для сохранения markdown результата
     
