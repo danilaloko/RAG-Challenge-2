@@ -322,13 +322,21 @@ class QuestionsProcessor:
         
         return results
 
-    def _process_single_question(self, question_text: str, question_index: int) -> dict:
+    def _process_single_question(self, question_data: dict, question_index: int) -> dict:
         """Обрабатывает один вопрос и возвращает результат."""
         try:
-            schema = "text"
+            # Проверяем формат вопроса
+            if isinstance(question_data, dict):
+                # Новый формат: {'text': '...', 'kind': '...'}
+                question_text = question_data.get("text")
+                schema = question_data.get("kind", "text")
+            else:
+                # Старый формат: строка с вопросом
+                question_text = question_data
+                schema = "text"
             
             # Проверка на None или пустой вопрос
-            if question_text is None or question_text.strip() == "":
+            if question_text is None or (isinstance(question_text, str) and question_text.strip() == ""):
                 return {
                     "question_id": f"q{question_index}",
                     "error": "Вопрос отсутствует или пустой",
@@ -358,7 +366,7 @@ class QuestionsProcessor:
         except Exception as e:
             import traceback
             error_trace = traceback.format_exc()
-            print(f"Error encountered processing question: {question_text}")
+            print(f"Error encountered processing question: {question_data}")
             print(f"Error type: {type(e).__name__}")
             print(f"Error message: {str(e)}")
             print(f"Full traceback:\n{error_trace}")
