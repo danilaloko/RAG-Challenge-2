@@ -76,6 +76,48 @@ class VectorDBQuerier:
         
         return expanded_embedding
 
+    def preprocess_query(self, query: str) -> str:
+        """
+        Предварительная обработка запроса через GPT для улучшения качества поиска
+        
+        Args:
+            query: исходный запрос пользователя
+            
+        Returns:
+            улучшенный запрос для векторного поиска
+        """
+        # Настройка прокси для запроса
+        proxy = "http://user156811:eb49hn@45.159.182.77:5442"
+        
+        # Создание клиента OpenAI с прокси
+        client = OpenAI(
+            api_key=openai.api_key,
+            http_client=httpx.Client(proxies=proxy)
+        )
+        
+        prompt = f"""Переформулируй запрос для улучшения векторного поиска по учебным материалам. 
+Добавь ключевые термины и синонимы, которые могут быть в тексте.
+Сохрани основной смысл запроса, но сделай его более полным для поиска.
+
+Исходный запрос: {query}
+
+Дай только переформулированный запрос, без пояснений."""
+
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Ты - эксперт по улучшению запросов для векторного поиска в технической документации."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=256
+        )
+        
+        enhanced_query = response.choices[0].message.content.strip()
+        print(f"Исходный запрос: {query}")
+        print(f"Улучшенный запрос: {enhanced_query}")
+        return enhanced_query
+
     def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
         """
         Поиск релевантных фрагментов текста по запросу
@@ -87,8 +129,11 @@ class VectorDBQuerier:
         Returns:
             список словарей с найденными фрагментами и их метаданными
         """
-        # Используем новый метод кодирования
-        query_embedding = self.encode_text(query)
+        # Предварительная обработка запроса
+        enhanced_query = self.preprocess_query(query)
+        
+        # Кодирование улучшенного запроса
+        query_embedding = self.encode_text(enhanced_query)
         
         all_results = []
         
