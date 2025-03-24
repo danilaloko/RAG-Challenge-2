@@ -1,226 +1,177 @@
+import json
 import os
-import time
-import glob
-from pathlib import Path
-from docling.document_converter import DocumentConverter
-import fitz  # PyMuPDF
-from PIL import Image, ImageEnhance
-import io
+import faiss
 import numpy as np
-import concurrent.futures
+import openai
+from typing import List, Dict, Any
+from sentence_transformers import SentenceTransformer
+import dotenv
 
-def check_gpu():
-    """Проверка доступности GPU"""
-    try:
-        import torch
-        if torch.cuda.is_available():
-            print(f"GPU доступен: {torch.cuda.get_device_name(0)}")
-            return True
-        else:
-            print("GPU не доступен, будет использован CPU")
-            return False
-    except ImportError:
-        print("PyTorch не установлен, будет использован CPU")
-        return False
+# Настройка API ключа OpenAI
+openai.api_key = dotenv.get("OPENAI_API_KEY")
 
-def preprocess_pdf(pdf_path, output_path=None, enhance=True, dpi=300):
-    """Предварительная обработка PDF для улучшения качества распознавания"""
-    if output_path is None:
-        output_path = os.path.splitext(pdf_path)[0] + "_preprocessed.pdf"
-    
-    print(f"Предварительная обработка PDF {pdf_path}...")
-    
-    # Открываем исходный PDF
-    doc = fitz.open(pdf_path)
-    # Создаем новый PDF для обработанных страниц
-    new_doc = fitz.open()
-    
-    for page_num in range(len(doc)):
-        page = doc.load_page(page_num)
+class VectorDBQuerier:
+    def __init__(self, faiss_db_paths: List[str], model_name: str = "all-MiniLM-L6-v2"):
+        """
+        Инициализация класса для работы с векторными БД FAISS
         
-        # Получаем изображение страницы с высоким разрешением
-        pix = page.get_pixmap(matrix=fitz.Matrix(dpi/72, dpi/72))
-        img_data = pix.samples
+        Args:
+            faiss_db_paths: список путей к файлам .faiss
+            model_name: название модели для эмбеддингов
+        """
+        self.faiss_dbs = []
+        self.texts = []
+        self.model = SentenceTransformer(model_name)
         
-        # Преобразуем в изображение PIL для обработки
-        img = Image.frombytes("RGB", [pix.width, pix.height], img_data)
-        
-        if enhance:
-            # Улучшение контрастности
-            enhancer = ImageEnhance.Contrast(img)
-            img = enhancer.enhance(1.5)  # Увеличиваем контраст
+        # Загрузка всех векторных БД
+        for db_path in faiss_db_paths:
+            if not os.path.exists(db_path):
+                raise FileNotFoundError(f"FAISS база данных не найдена: {db_path}")
             
-            # Улучшение резкости
-            enhancer = ImageEnhance.Sharpness(img)
-            img = enhancer.enhance(1.5)  # Увеличиваем резкость
-        
-        # Преобразуем обратно в формат, подходящий для PDF
-        img_bytes = io.BytesIO()
-        img.save(img_bytes, format="PNG")
-        img_bytes.seek(0)
-        
-        # Создаем новую страницу с улучшенным изображением
-        new_page = new_doc.new_page(width=page.rect.width, height=page.rect.height)
-        new_page.insert_image(new_page.rect, stream=img_bytes)
+            # Предполагаем, что для каждой .faiss БД есть соответствующий .json файл с текстами
+            text_path = db_path.replace('.faiss', '.json')
+            if not os.path.exists(text_path):
+                raise FileNotFoundError(f"Файл с текстами не найден: {text_path}")
+            
+            # Загрузка индекса FAISS
+            index = faiss.read_index(db_path)
+            self.faiss_dbs.append(index)
+            
+            # Загрузка текстов
+            with open(text_path, 'r', encoding='utf-8') as f:
+                texts = json.load(f)
+            self.texts.append(texts)
     
-    # Сохраняем обработанный PDF
-    new_doc.save(output_path)
-    new_doc.close()
-    doc.close()
-    
-    print(f"Предварительно обработанный PDF сохранен в {output_path}")
-    return output_path
+    def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
+        """
+        Поиск релевантных фрагментов текста по запросу
+        
+        Args:
+            query: текстовый запрос
+            top_k: количество возвращаемых результатов
+            
+        Returns:
+            список словарей с найденными фрагментами и их метаданными
+        """
+        # Получение эмбеддинга запроса
+        query_embedding = self.model.encode([query])[0]
+        query_embedding = np.array([query_embedding], dtype=np.float32)
+        
+        all_results = []
+        
+        # Поиск по всем базам данных
+        for i, index in enumerate(self.faiss_dbs):
+            distances, indices = index.search(query_embedding, top_k)
+            
+            # Формирование результатов
+            for j, idx in enumerate(indices[0]):
+                if idx != -1:  # Проверка на валидный индекс
+                    result = {
+                        "text": self.texts[i][idx],
+                        "distance": float(distances[0][j]),
+                        "db_index": i,
+                        "text_index": idx
+                    }
+                    all_results.append(result)
+        
+        # Сортировка результатов по релевантности (меньшее расстояние = более релевантно)
+        all_results.sort(key=lambda x: x["distance"])
+        
+        return all_results[:top_k]
 
-def process_pdf(pdf_path, output_txt_path=None, output_md_path=None, output_json_path=None, preprocess=False):
-    """Обработка PDF с использованием Docling"""
-    if not os.path.exists(pdf_path):
-        print(f"Файл {pdf_path} не найден!")
-        return None
+def generate_answer(query: str, context: List[Dict[str, Any]]) -> str:
+    """
+    Генерация ответа с использованием ChatGPT
     
-    # Если выходные пути не указаны, создаем их на основе имени PDF файла
-    if output_txt_path is None:
-        output_txt_path = os.path.splitext(pdf_path)[0] + "_docling.txt"
-    
-    if output_md_path is None:
-        output_md_path = os.path.splitext(pdf_path)[0] + "_docling.md"
+    Args:
+        query: вопрос пользователя
+        context: контекст из векторной БД
         
-    if output_json_path is None:
-        output_json_path = os.path.splitext(pdf_path)[0] + "_docling.json"
+    Returns:
+        ответ на вопрос
+    """
+    # Формирование контекста для запроса к ChatGPT
+    context_text = "\n\n".join([item["text"] for item in context])
     
-    start_time = time.time()
+    # Формирование промпта
+    prompt = f"""На основе следующей информации из методических материалов ответь на вопрос.
     
-    # Проверка GPU
-    use_gpu = check_gpu()
-    
-    # Предварительная обработка PDF при необходимости
-    processed_pdf = pdf_path
-    if preprocess:
-        processed_pdf = preprocess_pdf(pdf_path)
-    
-    print(f"Обработка документа {processed_pdf}...")
-    
-    # Создаем конвертер документов с дополнительными параметрами
-    converter = DocumentConverter(
-        # Можно настроить дополнительные параметры для улучшения распознавания
-        ocr_languages=["rus", "eng"],  # Языки для OCR
-        ocr_force=True,  # Принудительное использование OCR даже для PDF с текстовым слоем
-        ocr_dpi=300,     # Повышенное разрешение для OCR
+Информация из методических материалов:
+{context_text}
+
+Вопрос: {query}
+
+Дай подробный и точный ответ, основываясь только на предоставленной информации. Если информации недостаточно, укажи это."""
+
+    # Запрос к ChatGPT
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # или "gpt-4" для более качественных ответов
+        messages=[
+            {"role": "system", "content": "Ты - ассистент, который помогает студентам с вопросами по учебным материалам."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3,  # Низкая температура для более точных ответов
+        max_tokens=1000
     )
     
-    # Конвертируем PDF в структурированный документ
+    return response.choices[0].message.content
+
+def process_json_query(json_query: str) -> Dict[str, Any]:
+    """
+    Обработка запроса в формате JSON
+    
+    Args:
+        json_query: строка с JSON-запросом
+        
+    Returns:
+        словарь с ответом
+    """
     try:
-        result = converter.convert(processed_pdf)
+        # Парсинг JSON
+        query_data = json.loads(json_query)
         
-        # Получаем документ
-        document = result.document
+        # Проверка наличия поля с вопросом
+        if "question" not in query_data:
+            return {"error": "В запросе отсутствует поле 'question'"}
         
-        # Сохраняем результат в текстовом формате
-        with open(output_txt_path, 'w', encoding='utf-8') as f:
-            f.write(document.export_to_text())
+        question = query_data["question"]
         
-        # Сохраняем результат в формате Markdown (сохраняет таблицы в формате markdown)
-        with open(output_md_path, 'w', encoding='utf-8') as f:
-            f.write(document.export_to_markdown())
-            
-        # Сохраняем результат в формате JSON для дальнейшей обработки
-        with open(output_json_path, 'w', encoding='utf-8') as f:
-            f.write(document.export_to_json())
+        # Пути к векторным БД (замените на свои)
+        faiss_db_paths = [
+            "data/test_set/databases/chunked_reports/74332 (1).faiss"
+            # Добавьте другие пути при необходимости
+        ]
         
-        print(f"Обработка завершена за {time.time() - start_time:.2f} секунд.")
-        print(f"Текстовый результат сохранен в {output_txt_path}")
-        print(f"Markdown результат сохранен в {output_md_path}")
-        print(f"JSON результат сохранен в {output_json_path}")
+        # Создание объекта для работы с векторными БД
+        querier = VectorDBQuerier(faiss_db_paths)
         
-        # Удаляем временный файл, если была предварительная обработка
-        if preprocess and processed_pdf != pdf_path and os.path.exists(processed_pdf):
-            os.remove(processed_pdf)
+        # Поиск релевантных фрагментов
+        search_results = querier.search(question)
         
-        return document
+        # Генерация ответа
+        answer = generate_answer(question, search_results)
+        
+        # Формирование ответа
+        response = {
+            "question": question,
+            "answer": answer,
+            "sources": [{"text": item["text"], "relevance": 1.0 - item["distance"]} for item in search_results]
+        }
+        
+        return response
     
+    except json.JSONDecodeError:
+        return {"error": "Некорректный формат JSON"}
     except Exception as e:
-        print(f"Ошибка при обработке {pdf_path}: {str(e)}")
-        
-        # Удаляем временный файл, если была предварительная обработка
-        if preprocess and processed_pdf != pdf_path and os.path.exists(processed_pdf):
-            os.remove(processed_pdf)
-            
-        return None
+        return {"error": f"Произошла ошибка: {str(e)}"}
 
-def process_directory(directory_path, output_dir=None, preprocess=True, parallel=True, max_workers=4):
-    """Обработка всех PDF файлов в указанной директории"""
-    if not os.path.exists(directory_path):
-        print(f"Директория {directory_path} не найдена!")
-        return
-    
-    if output_dir is None:
-        output_dir = os.path.join(directory_path, "processed")
-    
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Получаем список всех PDF файлов в директории
-    pdf_files = glob.glob(os.path.join(directory_path, "*.pdf"))
-    
-    if not pdf_files:
-        print(f"В директории {directory_path} не найдено PDF файлов.")
-        return
-    
-    print(f"Найдено {len(pdf_files)} PDF файлов для обработки.")
-    
-    if parallel and len(pdf_files) > 1:
-        # Параллельная обработка файлов
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = []
-            for pdf_file in pdf_files:
-                file_name = os.path.basename(pdf_file)
-                output_txt = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.txt")
-                output_md = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.md")
-                output_json = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.json")
-                
-                futures.append(
-                    executor.submit(
-                        process_pdf, 
-                        pdf_file, 
-                        output_txt, 
-                        output_md,
-                        output_json,
-                        preprocess
-                    )
-                )
-            
-            # Ожидаем завершения всех задач
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    future.result()
-                except Exception as e:
-                    print(f"Ошибка при параллельной обработке: {str(e)}")
-    else:
-        # Последовательная обработка файлов
-        for pdf_file in pdf_files:
-            file_name = os.path.basename(pdf_file)
-            output_txt = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.txt")
-            output_md = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.md")
-            output_json = os.path.join(output_dir, os.path.splitext(file_name)[0] + "_docling.json")
-            
-            process_pdf(pdf_file, output_txt, output_md, output_json, preprocess)
-    
-    print(f"Обработка всех PDF файлов завершена. Результаты сохранены в {output_dir}")
-
+# Пример использования
 if __name__ == "__main__":
-    # Указываем пути к файлам прямо в коде
-    # Для обработки одного файла:
-    # pdf_path = "путь_к_методичке.pdf"  # Укажите здесь путь к вашему PDF файлу
-    # output_txt_path = "результат_docling.txt"  # Укажите здесь путь для сохранения текстового результата
-    # output_md_path = "результат_docling.md"  # Укажите здесь путь для сохранения markdown результата
-    # output_json_path = "результат_docling.json"  # Укажите здесь путь для сохранения json результата
-    # process_pdf(pdf_path, output_txt_path, output_md_path, output_json_path, preprocess=True)
+    # Пример JSON-запроса
+    sample_query = '{"question": "Напиши формулу коэффициента усиления по мощности в схеме каскада с общим эмиттером"}'
     
-    # Для обработки всех файлов в директории:
-    directory_path = "путь_к_директории_с_методичками"  # Укажите здесь путь к директории с PDF файлами
-    output_dir = "путь_к_директории_для_результатов"  # Укажите здесь путь для сохранения результатов
+    # Обработка запроса
+    result = process_json_query(sample_query)
     
-    # Параметры обработки:
-    preprocess = True  # Предварительная обработка PDF для улучшения качества распознавания
-    parallel = True  # Параллельная обработка файлов
-    max_workers = 4  # Максимальное количество параллельных потоков
-    
-    process_directory(directory_path, output_dir, preprocess, parallel, max_workers)
+    # Вывод результата
+    print(json.dumps(result, ensure_ascii=False, indent=2))
