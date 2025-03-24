@@ -72,13 +72,32 @@ class QuestionsProcessor:
         if self.subset_path is None:
             raise ValueError("subset_path необходим для обработки ссылок.")
         self.documents_df = pd.read_csv(self.subset_path)
-
-        # Найти SHA1 документа из CSV
-        matching_rows = self.documents_df[self.documents_df['document_name'] == document_name]
-        if matching_rows.empty:
+        
+        # Проверяем, какие столбцы есть в CSV
+        columns = self.documents_df.columns.tolist()
+        
+        # Определяем имя столбца с названием документа
+        doc_name_column = None
+        for possible_name in ['document_name', 'name', 'title', 'filename']:
+            if possible_name in columns:
+                doc_name_column = possible_name
+                break
+        
+        if not doc_name_column:
+            print(f"Предупреждение: Не найден столбец с названием документа. Доступные столбцы: {columns}")
             document_sha1 = ""
         else:
-            document_sha1 = matching_rows.iloc[0]['sha1']
+            # Найти SHA1 документа из CSV
+            matching_rows = self.documents_df[self.documents_df[doc_name_column] == document_name]
+            if matching_rows.empty:
+                document_sha1 = ""
+            else:
+                # Определяем имя столбца с SHA1
+                sha1_column = 'sha1' if 'sha1' in columns else ('hash' if 'hash' in columns else None)
+                if sha1_column:
+                    document_sha1 = matching_rows.iloc[0][sha1_column]
+                else:
+                    document_sha1 = ""
 
         refs = []
         for page in pages_list:
@@ -167,8 +186,20 @@ class QuestionsProcessor:
                 raise ValueError("subset_path должен быть указан для использования извлечения из подмножества")
             self.documents_df = pd.read_csv(self.subset_path)
         
+        # Определяем имя столбца с названием документа
+        columns = self.documents_df.columns.tolist()
+        doc_name_column = None
+        for possible_name in ['document_name', 'name', 'title', 'filename']:
+            if possible_name in columns:
+                doc_name_column = possible_name
+                break
+        
+        if not doc_name_column:
+            print(f"Предупреждение: Не найден столбец с названием документа. Доступные столбцы: {columns}")
+            return []
+        
         found_documents = []
-        document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)
+        document_names = sorted(self.documents_df[doc_name_column].unique(), key=len, reverse=True)
         
         for document in document_names:
             escaped_document = re.escape(document)
