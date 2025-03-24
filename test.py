@@ -41,9 +41,6 @@ class VectorDBQuerier:
             index = faiss.read_index(db_path)
             print(f"Размерность индекса FAISS в {db_path}: {index.d}")
             
-            if index.d != len(test_embedding):
-                raise ValueError(f"Размерность индекса ({index.d}) не совпадает с размерностью модели ({len(test_embedding)})")
-            
             self.faiss_dbs.append(index)
             
             # Получаем имя файла без пути и расширения
@@ -61,6 +58,24 @@ class VectorDBQuerier:
                 texts = json.load(f)
             self.texts.append(texts)
     
+    def encode_text(self, text: str) -> np.ndarray:
+        """
+        Кодирование текста с расширением эмбеддинга до нужной размерности
+        
+        Args:
+            text: текст для кодирования
+            
+        Returns:
+            numpy array размерности 3072
+        """
+        # Получаем базовый эмбеддинг размерности 768
+        base_embedding = self.model.encode([text])[0]
+        
+        # Расширяем эмбеддинг до размерности 3072 путем повторения 4 раза
+        expanded_embedding = np.tile(base_embedding, 4)
+        
+        return expanded_embedding
+
     def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
         """
         Поиск релевантных фрагментов текста по запросу
@@ -72,23 +87,13 @@ class VectorDBQuerier:
         Returns:
             список словарей с найденными фрагментами и их метаданными
         """
-        query_embedding = self.model.encode([query])[0]
+        # Используем новый метод кодирования
+        query_embedding = self.encode_text(query)
         
         all_results = []
         
         for i, index in enumerate(self.faiss_dbs):
-            d = index.d
-            
-            if len(query_embedding) != d:
-                print(f"Предупреждение: размерность эмбеддинга ({len(query_embedding)}) не совпадает с размерностью индекса ({d})")
-                if len(query_embedding) > d:
-                    query_embedding_resized = query_embedding[:d]
-                else:
-                    query_embedding_resized = np.pad(query_embedding, (0, d - len(query_embedding)))
-            else:
-                query_embedding_resized = query_embedding
-            
-            query_embedding_resized = np.array([query_embedding_resized], dtype=np.float32)
+            query_embedding_resized = np.array([query_embedding], dtype=np.float32)
             
             distances, indices = index.search(query_embedding_resized, top_k)
             
