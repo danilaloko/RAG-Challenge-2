@@ -15,14 +15,15 @@ from docling.datamodel.document import ConversionResult
 
 _log = logging.getLogger(__name__)
 
-def _process_chunk(pdf_paths, pdf_backend, output_dir, num_threads, metadata_lookup, debug_data_path):
+def _process_chunk(pdf_paths, pdf_backend, output_dir, num_threads, metadata_lookup, debug_data_path, ocr_engine="docling"):
     """Helper function to process a chunk of PDFs in a separate process."""
     # Create a new parser instance for this process
     parser = PDFParser(
         pdf_backend=pdf_backend,
         output_dir=output_dir,
         num_threads=num_threads,
-        csv_metadata_path=None  # Metadata lookup is passed directly
+        csv_metadata_path=None,  # Metadata lookup is passed directly
+        ocr_engine=ocr_engine
     )
     parser.metadata_lookup = metadata_lookup
     parser.debug_data_path = debug_data_path
@@ -36,9 +37,11 @@ class PDFParser:
         output_dir: Path = Path("./parsed_pdfs"),
         num_threads: int = None,
         csv_metadata_path: Path = None,
+        ocr_engine: str = "docling"
     ):
         self.pdf_backend = pdf_backend
         self.output_dir = output_dir
+        self.ocr_engine = ocr_engine
         self.doc_converter = self._create_document_converter()
         self.num_threads = num_threads
         self.metadata_lookup = {}
@@ -75,7 +78,7 @@ class PDFParser:
         
         pipeline_options = PdfPipelineOptions()
         pipeline_options.do_ocr = True
-        ocr_options = EasyOcrOptions(lang=['en'], force_full_page_ocr=False)
+        ocr_options = EasyOcrOptions(lang=['ru'], force_full_page_ocr=False)
         pipeline_options.ocr_options = ocr_options
         pipeline_options.do_table_structure = True
         pipeline_options.table_structure_options.do_cell_matching = True
@@ -228,7 +231,8 @@ class PDFParser:
                     self.output_dir,
                     self.num_threads,
                     self.metadata_lookup,
-                    self.debug_data_path
+                    self.debug_data_path,
+                    self.ocr_engine
                 )
                 for chunk in chunks
             ]

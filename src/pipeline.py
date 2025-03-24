@@ -106,30 +106,33 @@ class Pipeline:
         parser = PDFParser(output_dir=here())
         parser.parse_and_export(input_doc_paths=[here() / "src/dummy_report.pdf"])
 
-    def parse_pdf_reports_sequential(self):
+    def parse_pdf_reports_sequential(self, ocr_engine="docling"):
         logging.basicConfig(level=logging.DEBUG)
         
         pdf_parser = PDFParser(
             output_dir=self.paths.parsed_reports_path,
-            csv_metadata_path=self.paths.subset_path
+            csv_metadata_path=self.paths.subset_path,
+            ocr_engine=ocr_engine
         )
         pdf_parser.debug_data_path = self.paths.parsed_reports_debug_path
             
         pdf_parser.parse_and_export(doc_dir=self.paths.pdf_reports_dir)
         print(f"PDF reports parsed and saved to {self.paths.parsed_reports_path}")
 
-    def parse_pdf_reports_parallel(self, chunk_size: int = 2, max_workers: int = 10):
+    def parse_pdf_reports_parallel(self, chunk_size: int = 2, max_workers: int = 10, ocr_engine="docling"):
         """Parse PDF reports in parallel using multiple processes.
         
         Args:
             chunk_size: Number of PDFs to process in each worker
             num_workers: Number of parallel worker processes to use
+            ocr_engine: OCR engine to use ("docling" or "tesseract")
         """
         logging.basicConfig(level=logging.DEBUG)
         
         pdf_parser = PDFParser(
             output_dir=self.paths.parsed_reports_path,
-            csv_metadata_path=self.paths.subset_path
+            csv_metadata_path=self.paths.subset_path,
+            ocr_engine=ocr_engine
         )
         pdf_parser.debug_data_path = self.paths.parsed_reports_debug_path
 
@@ -201,11 +204,11 @@ class Pipeline:
         bm25_ingestor.process_reports(input_dir, output_file)
         print(f"BM25 database created at {output_file}")
     
-    def parse_pdf_reports(self, parallel: bool = True, chunk_size: int = 2, max_workers: int = 10):
+    def parse_pdf_reports(self, parallel: bool = True, chunk_size: int = 2, max_workers: int = 10, ocr_engine="docling"):
         if parallel:
-            self.parse_pdf_reports_parallel(chunk_size=chunk_size, max_workers=max_workers)
+            self.parse_pdf_reports_parallel(chunk_size=chunk_size, max_workers=max_workers, ocr_engine=ocr_engine)
         else:
-            self.parse_pdf_reports_sequential()
+            self.parse_pdf_reports_sequential(ocr_engine=ocr_engine)
     
     def process_parsed_reports(self):
         """Process already parsed PDF reports through the pipeline:
@@ -450,11 +453,18 @@ configs = {"base": base_config,
 if __name__ == "__main__":
     root_path = here() / "data" / "test_set"
     pipeline = Pipeline(root_path, run_config=max_nst_o3m_config)
-    
+        # Для последовательного парсинга с Tesseract
+    #pipeline.parse_pdf_reports_sequential(ocr_engine="tesseract")
+
+    # Для параллельного парсинга с Tesseract
+    #pipeline.parse_pdf_reports_parallel(chunk_size=2, max_workers=10, ocr_engine="tesseract")
+
+    # Или через общий метод
+    pipeline.parse_pdf_reports(parallel=False, chunk_size=2, max_workers=10, ocr_engine="tesseract")
     
     # This method parses pdf reports into a jsons. It creates jsons in the debug/data_01_parsed_reports. These jsons used in the next steps. 
     # It also stores raw output of docling in debug/data_01_parsed_reports_debug, these jsons contain a LOT of metadata, and not used anywhere
-    pipeline.parse_pdf_reports_sequential() 
+    #pipeline.parse_pdf_reports_sequential() 
     
     
     # This method should be called only if you want run configs with serialized tables
