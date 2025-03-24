@@ -6,6 +6,7 @@ core_recipe = CoreRecipe()
 
 doc = core_recipe.run("Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf")
 
+print(doc.text)
 
 # Сохранить структурированные данные
 output_data = {
@@ -17,5 +18,3 @@ output_data = {
 
 with open("document_output.json", "w", encoding="utf-8") as f:
     json.dump(output_data, f, ensure_ascii=False, indent=2)
-
-print(doc)
