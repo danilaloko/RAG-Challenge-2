@@ -161,24 +161,27 @@ class QuestionsProcessor:
         return answer_dict
 
     def _extract_documents_from_subset(self, question_text: str) -> list[str]:
-        """Извлекает названия документов из вопроса без сопоставления с CSV."""
-        # Проверка на None
-        if question_text is None:
-            return []
+        """Извлекает названия документов из вопроса, сопоставляя с документами в файле подмножества."""
+        if not hasattr(self, 'documents_df'):
+            if self.subset_path is None:
+                raise ValueError("subset_path должен быть указан для использования извлечения из подмножества")
+            self.documents_df = pd.read_csv(self.subset_path)
         
-        # Просто ищем документы в кавычках
-        found_documents = re.findall(r'"([^"]*)"', question_text)
+        found_documents = []
+        document_names = sorted(self.documents_df['document_name'].unique(), key=len, reverse=True)
         
-        # Если документы не найдены в кавычках, можно добавить другую логику
-        # Например, искать по ключевым словам или шаблонам
+        for document in document_names:
+            escaped_document = re.escape(document)
+            
+            pattern = rf'{escaped_document}(?:\W|$)'
+            
+            if re.search(pattern, question_text, re.IGNORECASE):
+                found_documents.append(document)
+                question_text = re.sub(pattern, '', question_text, flags=re.IGNORECASE)
         
         return found_documents
 
     def process_question(self, question: str, schema: str):
-        # Проверка на None
-        if question is None:
-            raise ValueError("Вопрос не может быть пустым (None)")
-        
         # Пытаемся извлечь названия документов из вопроса
         extracted_documents = self._extract_documents_from_subset(question)
         
@@ -315,38 +318,54 @@ class QuestionsProcessor:
             "statistics": statistics
         }
 
-    def _process_single_question(self, question_data: dict) -> dict:
-        question_index = question_data.get("_question_index", 0)
-        
-        question_text = question_data.get("question")
-        schema = question_data.get("schema")
+    def _process_single_question(self, question_data: dict, question_index: int) -> dict:
+        """Обрабатывает один вопрос и возвращает результат."""
         try:
+            question_text = question_data.get("question")
+            schema = question_data.get("schema", "text")
+            
+            # Проверка на None или пустой вопрос
+            if question_text is None or question_text.strip() == "":
+                return {
+                    "question_id": question_data.get("question_id", f"q{question_index}"),
+                    "error": "Вопрос отсутствует или пустой",
+                    "answer": "N/A"
+                }
+            
             answer_dict = self.process_question(question_text, schema)
             
-            if "error" in answer_dict:
-                detail_ref = self._create_answer_detail_ref({
-                    "step_by_step_analysis": None,
-                    "reasoning_summary": None,
-                    "relevant_pages": None
-                }, question_index)
-                return {
-                    "question_text": question_text,
-                    "kind": schema,
-                    "value": None,
-                    "references": [],
-                    "error": answer_dict["error"],
-                    "answer_details": {"$ref": detail_ref}
-                }
+            # Создаем ссылку на детали ответа
             detail_ref = self._create_answer_detail_ref(answer_dict, question_index)
-            return {
-                "question_text": question_text,
-                "kind": schema,
-                "value": answer_dict.get("final_answer"),
-                "references": answer_dict.get("references", []),
-                "answer_details": {"$ref": detail_ref},
+            
+            # Формируем результат
+            result = {
+                "question_id": question_data.get("question_id", f"q{question_index}"),
+                "answer": answer_dict.get("answer", "N/A"),
+                "answer_details_ref": detail_ref
             }
-        except Exception as err:
-            return self._handle_processing_error(question_text, schema, err, question_index)
+            
+            # Добавляем дополнительные поля в зависимости от схемы
+            if schema == "number":
+                result["value"] = answer_dict.get("value", "N/A")
+                result["unit"] = answer_dict.get("unit", "")
+            elif schema == "comparative":
+                result["comparison_result"] = answer_dict.get("comparison_result", {})
+            
+            return result
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"Error encountered processing question: {question_text}")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            print(f"Full traceback:\n{error_trace}")
+            
+            return {
+                "question_id": question_data.get("question_id", f"q{question_index}"),
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "answer": "N/A"
+            }
 
     def _handle_processing_error(self, question_text: str, schema: str, err: Exception, question_index: int) -> dict:
         """
