@@ -488,6 +488,7 @@ class QuestionsProcessor:
         output_path: Optional[Union[str, Path]] = None,
         team_email: Optional[str] = None,
         submission_name: Optional[str] = None,
+        pipeline_details: Optional[dict] = None,
         print_stats: bool = True
     ) -> List[dict]:
         """Обрабатывает все вопросы из self.questions и сохраняет результаты."""
@@ -506,15 +507,22 @@ class QuestionsProcessor:
         
         # Сохраняем результаты, если указан output_file
         if actual_output_file:
-            # Добавляем email команды и имя отправки в результаты, если они указаны
-            output_data = results
-            if team_email or submission_name:
-                output_data = {}
-                if team_email:
-                    output_data["team_email"] = team_email
-                if submission_name:
-                    output_data["submission_name"] = submission_name
+            # Создаем структуру выходных данных
+            output_data = {}
+            
+            # Добавляем метаданные, если они указаны
+            if team_email:
+                output_data["team_email"] = team_email
+            if submission_name:
+                output_data["submission_name"] = submission_name
+            if pipeline_details:
+                output_data["pipeline_details"] = pipeline_details
+            
+            # Добавляем результаты
+            if output_data:  # Если есть метаданные, добавляем результаты как подполе
                 output_data["results"] = results
+            else:  # Иначе результаты - это и есть выходные данные
+                output_data = results
             
             with open(actual_output_file, 'w', encoding='utf-8') as f:
                 json.dump(output_data, f, ensure_ascii=False, indent=2)
@@ -524,15 +532,22 @@ class QuestionsProcessor:
         if submission_file:
             submission_data = self._prepare_submission_data(results)
             
-            # Добавляем email команды и имя отправки в данные для отправки, если они указаны
-            submission_output = submission_data
-            if team_email or submission_name:
-                submission_output = {}
-                if team_email:
-                    submission_output["team_email"] = team_email
-                if submission_name:
-                    submission_output["submission_name"] = submission_name
+            # Создаем структуру данных для отправки
+            submission_output = {}
+            
+            # Добавляем метаданные, если они указаны
+            if team_email:
+                submission_output["team_email"] = team_email
+            if submission_name:
+                submission_output["submission_name"] = submission_name
+            if pipeline_details:
+                submission_output["pipeline_details"] = pipeline_details
+            
+            # Добавляем результаты
+            if submission_output:  # Если есть метаданные, добавляем результаты как подполе
                 submission_output["results"] = submission_data
+            else:  # Иначе результаты - это и есть данные для отправки
+                submission_output = submission_data
             
             with open(submission_file, 'w', encoding='utf-8') as f:
                 json.dump(submission_output, f, ensure_ascii=False, indent=2)
