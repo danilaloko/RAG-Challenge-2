@@ -163,16 +163,25 @@ def post_process_text(text):
     
     return text
 
-def pdf_to_high_accuracy_ocr(pdf_path, output_txt_path=None, dpi=600, lang="rus"):
+def pdf_to_high_accuracy_ocr(pdf_path, output_txt_path=None, dpi=600, lang="rus+eng"):
     """
     Извлекает текст из PDF с максимальной точностью OCR для русского языка.
     
     :param pdf_path: Путь к PDF
     :param output_txt_path: Куда сохранить текст (если None — возвращает строку)
     :param dpi: Разрешение сканирования (рекомендуется 300-600)
-    :param lang: Языки для Tesseract (по умолчанию только русский)
+    :param lang: Языки для Tesseract (по умолчанию русский+английский)
     :return: Текст или None (если сохранено в файл)
     """
+    # Проверка доступности языковых пакетов Tesseract
+    try:
+        test_img = Image.new('RGB', (10, 10), color = (0, 0, 0))
+        pytesseract.image_to_string(test_img, lang=lang)
+    except pytesseract.pytesseract.TesseractError as e:
+        print(f"⚠️ Ошибка с языковым пакетом Tesseract: {e}")
+        print("Пробуем использовать доступные языки...")
+        lang = None  # Используем язык по умолчанию
+    
     doc = fitz.open(pdf_path)
     full_text = []
     
@@ -208,12 +217,20 @@ def pdf_to_high_accuracy_ocr(pdf_path, output_txt_path=None, dpi=600, lang="rus"
             -c textord_force_make_prop_words=0
         """
         
-        # Применяем OCR
-        page_text = pytesseract.image_to_string(
-            processed_img,
-            lang=lang,
-            config=custom_config
-        )
+        # Применяем OCR с обработкой ошибок
+        try:
+            page_text = pytesseract.image_to_string(
+                processed_img,
+                lang=lang,
+                config=custom_config
+            )
+        except pytesseract.pytesseract.TesseractError as e:
+            print(f"⚠️ Ошибка OCR на странице {page_num+1}: {e}")
+            print("Пробуем использовать базовые настройки...")
+            try:
+                page_text = pytesseract.image_to_string(processed_img)
+            except:
+                page_text = "ОШИБКА OCR НА ЭТОЙ СТРАНИЦЕ"
         
         # Постобработка текста
         page_text = post_process_text(page_text)
