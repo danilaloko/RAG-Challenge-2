@@ -84,12 +84,21 @@ def main(pdf_path, output_txt_path=None):
     print(f"Результат сохранен в {output_txt_path}")
 
 if __name__ == "__main__":
+    # Указываем пути к файлам прямо в коде
+    pdf_path = "Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf"  # Укажите здесь путь к вашему PDF файлу
+    output_txt_path = "результат_ocr.txt"  # Укажите здесь путь для сохранения результата (или None)
+    
+    main(pdf_path, output_txt_path)
+    
+    # Закомментированный код с аргументами командной строки (на случай, если понадобится)
+    """
     import argparse
     
     parser = argparse.ArgumentParser(description='OCR для PDF с использованием GPU')
-    parser.add_argument('Основные правила оформления чертежей (Хотина, Ермакова, Кожухова)_rotated.pdf', help='Путь к PDF файлу')
+    parser.add_argument('pdf_path', help='Путь к PDF файлу')
     parser.add_argument('--output', help='Путь для сохранения результата (по умолчанию: имя_pdf_ocr.txt)')
     
     args = parser.parse_args()
     
     main(args.pdf_path, args.output)
+    """
